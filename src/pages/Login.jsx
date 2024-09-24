@@ -9,14 +9,12 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const AGROSELVA_URL_BACKEND = process.env.AGROSELVA_URL_BACKEND;
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            const response = await axios.post(AGROSELVA_URL_BACKEND+'auth/token', new URLSearchParams({
+            const response = await axios.post('https://agroselva-backend.onrender.com/api/v1/auth/token', new URLSearchParams({
                 grant_type: 'password',
                 username: username,
                 password: password,
