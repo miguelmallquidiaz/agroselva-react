@@ -1,10 +1,8 @@
 // api.js
 import axios from 'axios';
 
-const AGROSELVA_URL_BACKEND = process.env.AGROSELVA_URL_BACKEND;
-
 const api = axios.create({
-    baseURL: AGROSELVA_URL_BACKEND,
+    baseURL: 'https://agroselva-backend.onrender.com/api/v1',
 });
 
 api.interceptors.request.use(
