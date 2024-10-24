@@ -39,6 +39,14 @@ const Sidebar = ({ isSidebarOpen, closeSidebar }) => {
         navigate('/dashboard'); // Navega a la ruta de inicio
     };
 
+    const goToSubcategoryDashboard = () => {
+        navigate('/subcategory');
+    };
+    
+    const goToProductDashboard = () => {
+        navigate('/product');
+    };
+
     return (
         <>
             {isSidebarOpen && (
@@ -73,8 +81,8 @@ const Sidebar = ({ isSidebarOpen, closeSidebar }) => {
                         {isInventoryOpen && (
                             <div className="absolute left-0 top-full mt-2 bg-white text-black rounded-md shadow-lg w-48">
                                 <a href="#" onClick={goToCategoryDashboard} className="block px-4 py-2 hover:bg-gray-200">Categoría</a>
-                                <a href="#" className="block px-4 py-2 hover:bg-gray-200">Subcategoría</a>
-                                <a href="#" className="block px-4 py-2 hover:bg-gray-200">Productos</a>
+                                <a href="#" onClick={goToSubcategoryDashboard} className="block px-4 py-2 hover:bg-gray-200">Subcategoría</a>
+                                <a href="#" onClick={goToProductDashboard} className="block px-4 py-2 hover:bg-gray-200">Productos</a>
                             </div>
                         )}
                     </div>

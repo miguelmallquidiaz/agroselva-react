@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import config from '../utils/config';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post('https://agroselva-backend.onrender.com/api/v1/auth/token', new URLSearchParams({
+            const response = await axios.post(config.API_BASE_URL+'api/v1/auth/token', new URLSearchParams({
                 grant_type: 'password',
                 username: username,
                 password: password,
@@ -41,7 +42,7 @@ const Login = () => {
             if (error.response && error.response.status === 401) {
                 Swal.fire({
                     title: 'Error',
-                    text: 'No autorizado. Verifica tu username y contraseña.',
+                    text: 'No autorizado. Verifica tu correo y contraseña.',
                     icon: 'error',
                     confirmButtonText: 'Aceptar',
                 });

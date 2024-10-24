@@ -10,7 +10,7 @@ const Header = ({ toggleSidebar }) => {
         // Elimina los datos del localStorage
         localStorage.removeItem('access_token');
         // Redirige al usuario a la página de inicio de sesión o a otra página
-        window.location.href = '/';
+        navigate('/');
     };
 
     const toggleInventoryMenu = () => {
@@ -27,8 +27,16 @@ const Header = ({ toggleSidebar }) => {
         navigate('/category'); // Navega a la ruta de Categoría
     };
 
+    const goToSubcategoryDashboard = () => {
+        navigate('/subcategory');
+    };
+
     const goToIventoryDashboard = () => {
         navigate('/dashboard'); // Navega a la ruta de Inicio
+    };
+
+    const goToProductDashboard = () => {
+        navigate('/product');
     };
 
     useEffect(() => {
@@ -63,8 +71,8 @@ const Header = ({ toggleSidebar }) => {
                     {isInventoryOpen && (
                         <div className="absolute mt-2 bg-white text-black rounded-md shadow-lg">
                             <a href="#" className="block px-4 py-2 hover:bg-gray-200" onClick={goToCategoryDashboard}>Categoría</a>
-                            <a href="#" className="block px-4 py-2 hover:bg-gray-200">Subcategoría</a>
-                            <a href="#" className="block px-4 py-2 hover:bg-gray-200">Productos</a>
+                            <a href="#" className="block px-4 py-2 hover:bg-gray-200" onClick={goToSubcategoryDashboard}>Subcategoría</a>
+                            <a href="#" className="block px-4 py-2 hover:bg-gray-200" onClick={goToProductDashboard}>Productos</a>
                         </div>
                     )}
                 </div>

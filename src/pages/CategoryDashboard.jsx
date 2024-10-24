@@ -1,0 +1,207 @@
+import React, { useState } from 'react';
+import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
+import GenericTable from '../components/GenericTable';
+import UseFetchData from '../hooks/UseFetchData';
+import axios from 'axios';
+import GenericForm from '../components/GenericForm';
+
+const CategoryDashboard = () => {
+    const { data: initialCategories, loading, error: fetchError } = UseFetchData('category');
+    const [categories, setCategories] = useState(initialCategories || []); // Estado para las categorías
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentCategory, setCurrentCategory] = useState(null);
+    const [formType, setFormType] = useState('add'); // 'add' or 'edit'
+    const [error, setError] = useState(''); // Estado para manejar errores
+    const [errorMessage, setErrorMessage] = useState('');
+
+    // Efecto para sincronizar las categorías cuando se cargan los datos
+    React.useEffect(() => {
+            setCategories(initialCategories);
+    }, [initialCategories]);
+
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const handleAddClick = () => {
+        setCurrentCategory({ name: '', description: ''});
+        setFormType('add');
+        setIsModalOpen(true);
+        setError(''); // Limpiar error al abrir el modal
+    };
+
+    const handleEditClick = (category) => {
+        setCurrentCategory(category);
+        setFormType('edit');
+        setIsModalOpen(true);
+        setError(''); // Limpiar error al abrir el modal
+    };
+
+    const handleDisableClick = async (categoryId) => {
+        try {
+            await axios.patch(`http://127.0.0.1:8000/api/v1/category/disable/${categoryId}/`, {
+                is_active: false // Cambiar el estado a false
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            // Actualizar el estado local para eliminar la categoría deshabilitada
+            // setCategories(categories.filter(cat => cat.id !== categoryId));
+            setCategories((prevCategories) => 
+                prevCategories.map(cat => 
+                    cat.id === categoryId ? { ...cat, is_active: false } : cat
+                )
+            );
+        } catch (error) {
+            console.error('Error disabling category:', error);
+        }
+    };
+
+    const handleEnableClick = async (categoryId) => {
+        try {
+            await axios.patch(`http://127.0.0.1:8000/api/v1/category/enable/${categoryId}/`, {
+                is_active: true
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            // Actualizar el estado local para eliminar la categoría deshabilitada
+            // setCategories(categories.filter(cat => cat.id !== categoryId));
+            setCategories((prevCategories) => 
+                prevCategories.map(cat => 
+                    cat.id === categoryId ? { ...cat, is_active: true } : cat
+                )
+            );
+        } catch (error) {
+            console.error('Error disabling category:', error);
+        }
+    };
+
+    const handleSave = async (categoryData) => {
+        if (!categoryData.name) {
+            setError('El nombre de la categoría es obligatorio.');
+            return;
+        }
+    
+        try {
+            if (formType === 'add') {
+                const response = await axios.post('http://127.0.0.1:8000/api/v1/category/', categoryData, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                setCategories([...categories, response.data]); // Agregar la nueva categoría al estado
+                console.log('Categoría añadida.');
+            } else if (formType === 'edit') {
+                if (currentCategory && currentCategory.id) {
+                    const updatedData = {
+                        name: categoryData.name,
+                        is_active: currentCategory.is_active, // Preservar el estado activo, o puedes cambiarlo según tu lógica
+                    };
+    
+                    // Llamar al endpoint PUT para actualizar la categoría
+                    await axios.put(`http://127.0.0.1:8000/api/v1/category/${currentCategory.id}/`, updatedData, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+    
+                    // Actualiza el estado local
+                    const updatedCategories = categories.map(cat =>
+                        cat.id === currentCategory.id ? { ...cat, ...updatedData } : cat
+                    );
+                    setCategories(updatedCategories);
+                    console.log('Categoría actualizada.');
+                } else {
+                    throw new Error('ID de categoría no válido.');
+                }
+            }
+    
+            setIsModalOpen(false);
+            setError('');
+        } catch (error) {
+            let errorMessage = 'Ocurrió un error al guardar la categoría.';
+            const statusCode = error.response?.status;
+            const errorDetail = error.response?.data?.detail;
+    
+            if (statusCode === 400) {
+                errorMessage = errorDetail || 'La categoría ya existe.';
+            } else if (statusCode === 422) {
+                errorMessage = errorDetail[0]?.msg || 'Error de validación en los datos ingresados.';
+            }
+    
+            setError(errorMessage);
+        }
+    };
+
+    const handleUpdateCategory = async (categoryId, updatedData) => {
+        console.log('Datos para actualizar la categoría:', updatedData);
+        try {
+            await axios.patch(`http://127.0.0.1:8000/api/v1/category/${categoryId}`, updatedData, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log('Categoría actualizada con éxito.');
+            // Aquí no es necesario realizar más acciones, ya que la actualización se maneja en handleSave
+        } catch (error) {
+            console.error('Error al actualizar la categoría:', error);
+        }
+    };
+    
+    const columns = [
+        { label: 'ID', field: 'id' },
+        { label: 'Nombre', field: 'name' },
+        { label: 'Activo', field: 'is_active' }
+    ];
+
+    if (loading) return <div>Cargando...</div>;
+    if (fetchError) return <div>{fetchError}</div>; // Mensaje de error al cargar categorías
+
+    const fields = [
+        { name: 'name', label: 'Nombre', type: 'text', required: true },
+    ];
+
+    return (
+        <div className="flex flex-col min-h-screen bg-gray-100 relative">
+            <Header toggleSidebar={toggleSidebar} />
+            <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar} />
+            <main className="flex-grow p-8">
+                <div>
+                    <h2 className="text-xl font-bold p-2">Categorías</h2>
+                    <GenericTable
+                        items={categories}
+                        columns={columns}
+                        handleAddClick={handleAddClick}
+                        handleEditClick={handleEditClick}
+                        handleDisableClick={handleDisableClick}
+                        handleEnableClick={handleEnableClick}
+                    />
+                </div>
+            </main>
+            {isModalOpen && (
+                <div className="modal">
+                    <GenericForm
+                        onSave={handleSave}
+                        fields={fields}
+                        initialData={currentCategory}
+                        onClose={() => setIsModalOpen(false)}
+                        errorMessage={error} // Pasar mensaje de error a GenericForm
+                        setErrorMessage={setErrorMessage}
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default CategoryDashboard;
