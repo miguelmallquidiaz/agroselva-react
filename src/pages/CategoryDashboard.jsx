@@ -5,6 +5,7 @@ import GenericTable from '../components/GenericTable';
 import UseFetchData from '../hooks/UseFetchData';
 import axios from 'axios';
 import GenericForm from '../components/GenericForm';
+import config from '../utils/config';
 
 const CategoryDashboard = () => {
     const { data: initialCategories, loading, error: fetchError } = UseFetchData('category');
@@ -41,7 +42,7 @@ const CategoryDashboard = () => {
 
     const handleDisableClick = async (categoryId) => {
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/v1/category/disable/${categoryId}/`, {
+            await axios.patch(config.API_BASE_URL + `category/disable/${categoryId}/`, {
                 is_active: false // Cambiar el estado a false
             }, {
                 headers: {
@@ -63,7 +64,7 @@ const CategoryDashboard = () => {
 
     const handleEnableClick = async (categoryId) => {
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/v1/category/enable/${categoryId}/`, {
+            await axios.patch(config.API_BASE_URL + `category/enable/${categoryId}/`, {
                 is_active: true
             }, {
                 headers: {
@@ -91,7 +92,7 @@ const CategoryDashboard = () => {
     
         try {
             if (formType === 'add') {
-                const response = await axios.post('http://127.0.0.1:8000/api/v1/category/', categoryData, {
+                const response = await axios.post(config.API_BASE_URL + 'category/', categoryData, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                         'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ const CategoryDashboard = () => {
                     };
     
                     // Llamar al endpoint PUT para actualizar la categoría
-                    await axios.put(`http://127.0.0.1:8000/api/v1/category/${currentCategory.id}/`, updatedData, {
+                    await axios.put(config.API_BASE_URL + `category/${currentCategory.id}/`, updatedData, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                             'Content-Type': 'application/json',
@@ -145,7 +146,7 @@ const CategoryDashboard = () => {
     const handleUpdateCategory = async (categoryId, updatedData) => {
         console.log('Datos para actualizar la categoría:', updatedData);
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/v1/category/${categoryId}`, updatedData, {
+            await axios.patch(config.API_BASE_URL + `category/${categoryId}`, updatedData, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json',

@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import GenericTable from '../components/GenericTable';
 import UseFetchData from '../hooks/UseFetchData';
 import GenericForm from '../components/GenericForm';
+import config from '../utils/config';
 
 const ProductDashboard = () => {
     const { data: initialProducts, loading, error: fetchError } = UseFetchData('product');
@@ -27,7 +28,7 @@ const ProductDashboard = () => {
     useEffect(() => {
         const fetchSubcategories = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/v1/subcategory/', {
+                const response = await axios.get(config.API_BASE_URL + 'subcategory/', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
@@ -67,7 +68,7 @@ const ProductDashboard = () => {
 
     const handleDisableClick = async (productCode) => {
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/v1/product/disable/${productCode}/`, {
+            await axios.patch(config.API_BASE_URL + `product/disable/${productCode}/`, {
                 is_active: false
             }, {
                 headers: {
@@ -87,7 +88,7 @@ const ProductDashboard = () => {
 
     const handleEnableClick = async (productCode) => {
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/v1/product/enable/${productCode}/`, {
+            await axios.patch(config.API_BASE_URL + `product/enable/${productCode}/`, {
                 is_active: true
             }, {
                 headers: {
@@ -112,7 +113,7 @@ const ProductDashboard = () => {
     
             if (formType === 'add') {
                 // Lógica para agregar un nuevo producto
-                const response = await axios.post('http://127.0.0.1:8000/api/v1/product/', {
+                const response = await axios.post(config.API_BASE_URL + 'product/', {
                     name,
                     total_stock,
                     unit_price,
@@ -130,7 +131,7 @@ const ProductDashboard = () => {
                     throw new Error('El código del producto no está definido.');
                 }
                 // Lógica para editar un producto existente
-                const response = await axios.put(`http://127.0.0.1:8000/api/v1/product/${id}/`, {
+                const response = await axios.put(config.API_BASE_URL + `product/${id}/`, {
                     name,
                     total_stock,
                     unit_price,

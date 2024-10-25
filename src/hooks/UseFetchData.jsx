@@ -18,7 +18,7 @@ const UseFetchData = (endpoint) => {
         }
         setLoading(true);
         try {
-            const response = await axios.get(config.API_BASE_URL + `api/v1/${endpoint}/`, {
+            const response = await axios.get(config.API_BASE_URL + `${endpoint}/`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 },

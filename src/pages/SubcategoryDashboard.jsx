@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import GenericTable from '../components/GenericTable';
 import UseFetchData from '../hooks/UseFetchData';
 import GenericForm from '../components/GenericForm';
+import config from '../utils/config';
 
 const SubcategoryDashboard = () => {
     const { data: initialSubcategories, loading, error: fetchError } = UseFetchData('subcategory');
@@ -26,7 +27,7 @@ const SubcategoryDashboard = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/v1/category/', {
+                const response = await axios.get(config.API_BASE_URL + 'category/', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
@@ -64,7 +65,7 @@ const SubcategoryDashboard = () => {
 
     const handleDisableClick = async (subcategoryId) => {
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/v1/subcategory/disable/${subcategoryId}/`, {
+            await axios.patch(config.API_BASE_URL + `subcategory/disable/${subcategoryId}/`, {
                 is_active: false // Cambiar el estado a false
             }, {
                 headers: {
@@ -84,7 +85,7 @@ const SubcategoryDashboard = () => {
 
     const handleEnableClick = async (subcategoryId) => {
         try {
-            await axios.patch(`http://127.0.0.1:8000/api/v1/subcategory/enable/${subcategoryId}/`, {
+            await axios.patch(config.API_BASE_URL + `subcategory/enable/${subcategoryId}/`, {
                 is_active: true
             }, {
                 headers: {
@@ -109,7 +110,7 @@ const SubcategoryDashboard = () => {
     
             if (formType === 'add') {
                 // Crear una nueva subcategoría
-                const response = await axios.post('http://127.0.0.1:8000/api/v1/subcategory/', {
+                const response = await axios.post(config.API_BASE_URL + 'subcategory/', {
                     name,
                     measures,
                     category_id, // Asegúrate de enviar el category_id
@@ -126,7 +127,7 @@ const SubcategoryDashboard = () => {
                     throw new Error('ID de la subcategoría no está definido.'); 
                 }
                 // Actualizar subcategoría existente
-                const response = await axios.put(`http://127.0.0.1:8000/api/v1/subcategory/${subcategoryData.id}/`, {
+                const response = await axios.put(config.API_BASE_URL + `subcategory/${subcategoryData.id}/`, {
                     name,
                     measures,
                     category_id, // Asegúrate de enviar el category_id
