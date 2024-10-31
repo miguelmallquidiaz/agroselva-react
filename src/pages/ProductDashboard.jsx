@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -10,12 +11,17 @@ import config from '../utils/config';
 const ProductDashboard = () => {
     const { data: initialProducts, loading, error: fetchError } = UseFetchData('product');
     const [products, setProducts] = useState(initialProducts || []);
+    const [cartItems, setCartItems] = useState(() => {
+        const storedCart = sessionStorage.getItem('cart');
+        return storedCart ? JSON.parse(storedCart) : []; // Carga del sessionStorage
+    });
     const [subcategories, setSubcategories] = useState([]); // Lista de subcategorías
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
     const [formType, setFormType] = useState('add');
     const [error, setError] = useState('');
+    const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
         if (initialProducts) {
@@ -64,7 +70,7 @@ const ProductDashboard = () => {
         setFormType('edit');
         setIsModalOpen(true);
         setError('');
-    };    
+    };
 
     const handleDisableClick = async (productCode) => {
         try {
@@ -76,8 +82,8 @@ const ProductDashboard = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            setProducts((prevProducts) => 
-                prevProducts.map(prod => 
+            setProducts((prevProducts) =>
+                prevProducts.map(prod =>
                     prod.id === productCode ? { ...prod, is_active: false } : prod
                 )
             );
@@ -96,8 +102,8 @@ const ProductDashboard = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            setProducts((prevProducts) => 
-                prevProducts.map(prod => 
+            setProducts((prevProducts) =>
+                prevProducts.map(prod =>
                     prod.id === productCode ? { ...prod, is_active: true } : prod
                 )
             );
@@ -110,7 +116,7 @@ const ProductDashboard = () => {
         console.log("Datos del producto al guardar:", productData);
         try {
             const { name, total_stock, unit_price, subcategory_id, id } = productData;
-    
+
             if (formType === 'add') {
                 // Lógica para agregar un nuevo producto
                 const response = await axios.post(config.API_BASE_URL + 'product/', {
@@ -147,23 +153,71 @@ const ProductDashboard = () => {
                 );
                 setProducts(updatedProducts);
             }
-    
+
             setIsModalOpen(false);
         } catch (error) {
             let errorMessage = 'Ocurrió un error al guardar el producto.';
             const statusCode = error.response?.status;
             const errorDetail = error.response?.data?.detail;
-    
+
             if (statusCode === 400) {
                 errorMessage = errorDetail || 'El producto ya existe.';
             } else if (statusCode === 422) {
                 errorMessage = errorDetail[0]?.msg || 'Error de validación en los datos ingresados.';
             }
-    
+
             setError(errorMessage);
         }
     };
+
+    const handleAddToCartClick = (product) => {
+        setCartItems((prevItems) => {
+            const existingItem = prevItems.find(item => item.id === product.id);
+
+            if (existingItem) {
+                const updatedItems = prevItems.map(item =>
+                    item.id === product.id
+                        ? { ...item, quantity: item.quantity + quantity }
+                        : item
+                );
+                sessionStorage.setItem('cart', JSON.stringify(updatedItems)); // Actualiza sessionStorage
+                return updatedItems;
+            } else {
+                const newItem = { ...product, quantity };
+                const updatedItems = [...prevItems, newItem];
+                sessionStorage.setItem('cart', JSON.stringify(updatedItems)); // Actualiza sessionStorage
+                return updatedItems;
+            }
+        });
+    };
     
+
+    const QuantityForm = ({ quantity, setQuantity }) => {
+        const handleChange = (e) => {
+            const newQuantity = Number(e.target.value);
+            // Validar que la cantidad sea al menos 1
+            if (newQuantity < 1 || isNaN(newQuantity)) {
+                setQuantity(1); // Establecer la cantidad a 1 si es menor a 1 o NaN
+            } else {
+                setQuantity(newQuantity); // De lo contrario, establecer la nueva cantidad
+            }
+        };
+    
+        return (
+            <div className="mb-4">
+                <label htmlFor="quantity" className="block mb-2 '">Cantidad:</label>
+                <input
+                    type="number"
+                    id="quantity"
+                    min="1" // Asegurarse de que el campo no permita valores menores a 1
+                    value={quantity}
+                    onChange={handleChange} // Usar la nueva función handleChange
+                    className="w-1/4 p-2 border border-gray-300 rounded"
+                />
+            </div>
+        );
+    };
+
 
     const columns = [
         { label: 'Código', field: 'id' },
@@ -181,12 +235,14 @@ const ProductDashboard = () => {
         { name: 'name', label: 'Nombre del producto', type: 'text', required: true },
         { name: 'total_stock', label: 'Stock Total', type: 'number', required: true },
         { name: 'unit_price', label: 'Precio Unitario', type: 'number', required: true },
-        { 
-            name: 'subcategory_id', 
-            label: 'Subcategoría', 
-            type: 'select', 
-            options: subcategories.map(subcategory => ({ id: subcategory.id, name: subcategory.name })), 
-            required: true 
+        {
+            name: 'subcategory_id',
+            label: 'Subcategoría',
+            type: 'select',
+            options: subcategories
+            .filter(subcategory => subcategory.is_active) // Filtrar subcategorías activas
+            .map(subcategory => ({ id: subcategory.id, name: subcategory.name })),
+            required: true
         }
     ];
 
@@ -196,7 +252,10 @@ const ProductDashboard = () => {
             <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar} />
             <main className="flex-grow p-8">
                 <div>
-                    <h2 className="text-xl font-bold p-2">Productos</h2>
+                    <h2 className="text-xl font-bold">Productos</h2>
+
+                    <QuantityForm quantity={quantity} setQuantity={setQuantity} />
+
                     <GenericTable
                         items={products}
                         columns={columns}
@@ -204,7 +263,11 @@ const ProductDashboard = () => {
                         handleEditClick={handleEditClick}
                         handleDisableClick={handleDisableClick}
                         handleEnableClick={handleEnableClick}
+                        handleAddToCartClick={handleAddToCartClick}
                     />
+                    <Link to="/reservation">
+                        <button className="bg-blue-500 text-white p-2 rounded mt-4">Ir a Reservas</button>
+                    </Link>
                 </div>
             </main>
             {isModalOpen && (

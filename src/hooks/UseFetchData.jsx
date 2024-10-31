@@ -38,7 +38,7 @@ const UseFetchData = (endpoint) => {
                 navigate('/', { replace: true });  // Redirigir al login
             } else {
                 // Muestra el error pero permite acceder a la aplicación
-                setError("No hay datos disponibles.");
+                // setError("No hay datos disponibles.");
             }
         } finally {
             setLoading(false);

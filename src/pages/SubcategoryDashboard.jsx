@@ -177,7 +177,9 @@ const SubcategoryDashboard = () => {
         name: 'category_id', 
         label: 'Categoría', 
         type: 'select', 
-        options: categories.map(category => ({ id: category.id, name: category.name })), 
+        options: categories
+            .filter(category => category.is_active) // Filtrar categorías activas
+            .map(category => ({ id: category.id, name: category.name })), 
         required: true 
     }
 ];
