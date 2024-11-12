@@ -16,7 +16,7 @@ const ReservationProducts = () => {
             setLoading(true);
             try {
                 // Obtener productos de la reserva
-                const response = await axios.get(`${config.API_BASE_URL}reservation/${reservationId}/items`, {
+                const response = await axios.get(`${config.API_BASE_URL}reservations/${reservationId}/items`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
@@ -27,7 +27,7 @@ const ReservationProducts = () => {
                 console.log('Reservation Products:', reservationProducts);
 
                 // Obtener nombres de productos
-                const productsResponse = await axios.get(`${config.API_BASE_URL}product`, {
+                const productsResponse = await axios.get(`${config.API_BASE_URL}products`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },

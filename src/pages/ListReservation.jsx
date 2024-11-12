@@ -27,7 +27,7 @@ const ListReservation = () => {
         setReservationData([]); // Limpiar datos de reservas antes de la búsqueda
 
         try {
-            const response = await axios.get(`${config.API_BASE_URL}reservation/${dni}`, {
+            const response = await axios.get(`${config.API_BASE_URL}reservations/${dni}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                 },
@@ -64,7 +64,7 @@ const ListReservation = () => {
     const handleDeleteClick = async (reservationId) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar esta reserva?')) {
             try {
-                await axios.delete(`${config.API_BASE_URL}reservation/${reservationId}`, {
+                await axios.delete(`${config.API_BASE_URL}reservations/${reservationId}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
@@ -85,7 +85,7 @@ const ListReservation = () => {
     const handleChangeStatusClick = async (reservationId) => {
         try {
             await axios.patch(
-                `${config.API_BASE_URL}reservation/${reservationId}`, 
+                `${config.API_BASE_URL}reservations/${reservationId}`, 
                 { status: 'completada' }, 
                 {
                     headers: {
@@ -119,7 +119,7 @@ const ListReservation = () => {
 
         try {
             await axios.patch(
-                `${config.API_BASE_URL}reservation/${currentReservation.id}/delivery_date`,
+                `${config.API_BASE_URL}reservations/${currentReservation.id}/delivery_date`,
                 { delivery_date: formData.delivery_date },
                 {
                     headers: {

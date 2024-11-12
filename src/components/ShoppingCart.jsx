@@ -6,7 +6,7 @@ import GenericForm from '../components/GenericForm';
 const ShoppingCart = ({ cartItems = [], setCartItems }) => {
     const [showForm, setShowForm] = useState(false); // Estado para mostrar/ocultar el formulario
     const [errorMessage, setErrorMessage] = useState(''); // Estado para mensajes de error
-    
+    const [showAlert, setShowAlert] = useState(false);
     // Definición de los campos del formulario, eliminando los campos de fecha
     const fields = [
         { name: 'client_dni', label: 'DNI del Cliente', type: 'text', required: true },
@@ -32,7 +32,7 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
         if (newQuantity < 1 || isNaN(newQuantity)) return;
 
         setCartItems((prevItems) => {
-            const updatedItems = prevItems.map(item => 
+            const updatedItems = prevItems.map(item =>
                 item.id === productId ? { ...item, quantity: newQuantity } : item
             );
 
@@ -55,28 +55,45 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
                 pending_quantity: 0 // Asignando 0 a la cantidad pendiente
             }))
         };
-    
+
         handleCheckout(reservationData);
         setShowForm(false); // Cierra el formulario después de guardar
     };
-    
+
     const handleCheckout = async (reservationData) => {
         try {
-            const response = await axios.post(config.API_BASE_URL + 'reservation/', reservationData, {
+            // Validación del DNI (asegúrate de que tenga 8 dígitos)
+            if (reservationData.client_dni.length !== 8) {
+                throw new Error("El DNI debe tener exactamente 8 dígitos.");
+            }
+
+            const response = await axios.post(config.API_BASE_URL + 'reservations/', reservationData, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json'
                 }
             });
-    
+
             console.log("Reserva creada:", response.data);
             alert("Compra realizada con éxito!");
-    
+
             setCartItems([]); // Limpiar el carrito
             sessionStorage.removeItem('cart');
         } catch (error) {
             console.error("Error al realizar la compra:", error);
-            setErrorMessage("Hubo un problema al realizar la compra. Por favor, intenta de nuevo.");
+
+            if (error.response && error.response.status === 422) {
+                setErrorMessage("DNI inválido. Asegúrate de que tiene 8 dígitos.");
+            } else {
+                setErrorMessage("Hubo un problema al realizar la compra. Por favor, intenta de nuevo.");
+            }
+
+            // Mostrar alerta de error
+            setShowAlert(true);
+
+            setTimeout(() => {
+                setShowAlert(false);
+            }, 3000);
         }
     };
 
@@ -86,63 +103,110 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
     };
 
     return (
-        <div className="p-4">
-            {cartItems.length === 0 ? (
-                <p>El carrito está vacío.</p>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-gray-800 text-white">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-2 border-b border-gray-600 text-left">Producto</th>
-                                <th className="px-4 py-2 border-b border-gray-600 text-left">Precio Unitario</th>
-                                <th className="px-4 py-2 border-b border-gray-600 text-left">Cantidad</th>
-                                <th className="px-4 py-2 border-b border-gray-600 text-left">Total</th>
-                                <th className="px-4 py-2 border-b border-gray-600 text-left">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {cartItems.map(item => {
-                                const totalPrice = item.unit_price * item.quantity; // Calcular total por producto
-                                return (
-                                    <tr key={item.id} className="hover:bg-gray-700">
-                                        <td className="border-b border-gray-600 px-4 py-2">{item.name}</td>
-                                        <td className="border-b border-gray-600 px-4 py-2">S/.{item.unit_price.toFixed(2)}</td>
-                                        <td className="border-b border-gray-600 px-4 py-2">
-                                            <input
-                                                type="number"
-                                                value={item.quantity}
-                                                min="1"
-                                                onChange={(e) => handleChangeQuantity(item.id, Number(e.target.value))}
-                                                className="border border-gray-600 bg-gray-700 text-white rounded w-full"
-                                            />
-                                        </td>
-                                        <td className="border-b border-gray-600 px-4 py-2">S/.{totalPrice.toFixed(2)}</td>
-                                        <td className="border-b border-gray-600 px-4 py-2">
-                                            <button onClick={() => handleRemove(item.id)} className="bg-red-500 text-white p-2 rounded">Eliminar</button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                    <div className="mt-4 text-lg font-bold">
-                        Total General: S/.{getTotalPrice().toFixed(2)} {/* Mostrar total general */}
+        <>
+            <div className="p-4">
+                {showAlert && (
+                    <div
+                        id="alert-border-3"
+                        className="flex items-center p-4 mt-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:text-red-400 dark:bg-gray-800 dark:border-red-800"
+                        role="alert"
+                    >
+                        <svg
+                            className="flex-shrink-0 w-4 h-4"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                        </svg>
+                        <div className="ms-3 text-sm font-medium">
+                            El DNI debe contener 8 dígitos
+                        </div>
+                        <button
+                            type="button"
+                            className="ms-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700"
+                            onClick={() => setShowAlert(false)}
+                            aria-label="Close"
+                        >
+                            <span className="sr-only">Cerrar</span>
+                            <svg
+                                className="w-3 h-3"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 14 14"
+                            >
+                                <path
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                />
+                            </svg>
+                        </button>
                     </div>
-                    <button onClick={() => setShowForm(true)} className="mt-4 bg-green-500 text-white p-2 rounded">Realizar Compra</button>
-                </div>
-            )}
-            {/* Mostrar el formulario solo si showForm es true */}
-            {showForm && (
-                <GenericForm
-                    onSave={handleSaveForm}
-                    fields={fields}
-                    onClose={() => setShowForm(false)}
-                    errorMessage={errorMessage}
-                />
-            )}
-        </div>
-    );
+                )}
+            </div>
+
+            <div className="p-4">
+                {cartItems.length === 0 ? (
+                    <p>El carrito está vacío.</p>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full bg-gray-800 text-white">
+                            <thead>
+                                <tr>
+                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Producto</th>
+                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Precio Unitario</th>
+                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Cantidad</th>
+                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Total</th>
+                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {cartItems.map(item => {
+                                    const totalPrice = item.unit_price * item.quantity; // Calcular total por producto
+                                    return (
+                                        <tr key={item.id} className="hover:bg-gray-700">
+                                            <td className="border-b border-gray-600 px-4 py-2">{item.name}</td>
+                                            <td className="border-b border-gray-600 px-4 py-2">S/.{item.unit_price.toFixed(2)}</td>
+                                            <td className="border-b border-gray-600 px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    value={item.quantity}
+                                                    min="1"
+                                                    onChange={(e) => handleChangeQuantity(item.id, Number(e.target.value))}
+                                                    className="border border-gray-600 bg-gray-700 text-white rounded w-full"
+                                                />
+                                            </td>
+                                            <td className="border-b border-gray-600 px-4 py-2">S/.{totalPrice.toFixed(2)}</td>
+                                            <td className="border-b border-gray-600 px-4 py-2">
+                                                <button onClick={() => handleRemove(item.id)} className="bg-red-500 text-white p-2 rounded">Eliminar</button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                        <div className="mt-4 text-lg font-bold">
+                            Total General: S/.{getTotalPrice().toFixed(2)} {/* Mostrar total general */}
+                        </div>
+                        <button onClick={() => setShowForm(true)} className="mt-4 bg-green-500 text-white p-2 rounded">Realizar Compra</button>
+                    </div>
+                )}
+                {/* Mostrar el formulario solo si showForm es true */}
+                {showForm && (
+                    <GenericForm
+                        onSave={handleSaveForm}
+                        fields={fields}
+                        onClose={() => setShowForm(false)}
+                        errorMessage={errorMessage}
+                    />
+                )}
+            </div>
+        </>);
 };
 
 export default ShoppingCart;

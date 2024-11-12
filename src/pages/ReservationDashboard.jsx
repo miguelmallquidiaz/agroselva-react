@@ -13,7 +13,6 @@ const ReservationDashboard = () => {
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
-
     // Cargar elementos del carrito desde sessionStorage al montar
     useEffect(() => {
         const storedCart = sessionStorage.getItem('cart');

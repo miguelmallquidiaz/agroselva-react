@@ -8,7 +8,7 @@ import GenericForm from '../components/GenericForm';
 import config from '../utils/config';
 
 const SubcategoryDashboard = () => {
-    const { data: initialSubcategories, loading, error: fetchError } = UseFetchData('subcategory');
+    const { data: initialSubcategories, loading, error: fetchError } = UseFetchData('subcategories');
     const [subcategories, setSubcategories] = useState(initialSubcategories || []);
     const [categories, setCategories] = useState([]); // Lista de categorías
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -27,7 +27,7 @@ const SubcategoryDashboard = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get(config.API_BASE_URL + 'category/', {
+                const response = await axios.get(config.API_BASE_URL + 'categories/', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
@@ -65,7 +65,7 @@ const SubcategoryDashboard = () => {
 
     const handleDisableClick = async (subcategoryId) => {
         try {
-            await axios.patch(config.API_BASE_URL + `subcategory/disable/${subcategoryId}/`, {
+            await axios.patch(config.API_BASE_URL + `subcategories/disable/${subcategoryId}/`, {
                 is_active: false // Cambiar el estado a false
             }, {
                 headers: {
@@ -85,7 +85,7 @@ const SubcategoryDashboard = () => {
 
     const handleEnableClick = async (subcategoryId) => {
         try {
-            await axios.patch(config.API_BASE_URL + `subcategory/enable/${subcategoryId}/`, {
+            await axios.patch(config.API_BASE_URL + `subcategories/enable/${subcategoryId}/`, {
                 is_active: true
             }, {
                 headers: {
@@ -110,7 +110,7 @@ const SubcategoryDashboard = () => {
     
             if (formType === 'add') {
                 // Crear una nueva subcategoría
-                const response = await axios.post(config.API_BASE_URL + 'subcategory/', {
+                const response = await axios.post(config.API_BASE_URL + 'subcategories/', {
                     name,
                     measures,
                     category_id, // Asegúrate de enviar el category_id
@@ -127,7 +127,7 @@ const SubcategoryDashboard = () => {
                     throw new Error('ID de la subcategoría no está definido.'); 
                 }
                 // Actualizar subcategoría existente
-                const response = await axios.put(config.API_BASE_URL + `subcategory/${subcategoryData.id}/`, {
+                const response = await axios.put(config.API_BASE_URL + `subcategories/${subcategoryData.id}/`, {
                     name,
                     measures,
                     category_id, // Asegúrate de enviar el category_id
@@ -149,7 +149,7 @@ const SubcategoryDashboard = () => {
             const statusCode = error.response?.status;
             const errorDetail = error.response?.data?.detail;
     
-            if (statusCode === 400) {
+            if (statusCode === 401) {
                 errorMessage = errorDetail || 'La categoría ya existe.';
             } else if (statusCode === 422) {
                 errorMessage = errorDetail[0]?.msg || 'Error de validación en los datos ingresados.';

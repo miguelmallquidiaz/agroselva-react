@@ -9,7 +9,7 @@ import GenericForm from '../components/GenericForm';
 import config from '../utils/config';
 
 const ProductDashboard = () => {
-    const { data: initialProducts, loading, error: fetchError } = UseFetchData('product');
+    const { data: initialProducts, loading, error: fetchError } = UseFetchData('products');
     const [products, setProducts] = useState(initialProducts || []);
     const [cartItems, setCartItems] = useState(() => {
         const storedCart = sessionStorage.getItem('cart');
@@ -22,6 +22,7 @@ const ProductDashboard = () => {
     const [formType, setFormType] = useState('add');
     const [error, setError] = useState('');
     const [quantity, setQuantity] = useState(1);
+    const [showAlert, setShowAlert] = useState(false);
 
     useEffect(() => {
         if (initialProducts) {
@@ -34,7 +35,7 @@ const ProductDashboard = () => {
     useEffect(() => {
         const fetchSubcategories = async () => {
             try {
-                const response = await axios.get(config.API_BASE_URL + 'subcategory/', {
+                const response = await axios.get(config.API_BASE_URL + 'subcategories/', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
@@ -74,7 +75,7 @@ const ProductDashboard = () => {
 
     const handleDisableClick = async (productCode) => {
         try {
-            await axios.patch(config.API_BASE_URL + `product/disable/${productCode}/`, {
+            await axios.patch(config.API_BASE_URL + `products/disable/${productCode}/`, {
                 is_active: false
             }, {
                 headers: {
@@ -94,7 +95,7 @@ const ProductDashboard = () => {
 
     const handleEnableClick = async (productCode) => {
         try {
-            await axios.patch(config.API_BASE_URL + `product/enable/${productCode}/`, {
+            await axios.patch(config.API_BASE_URL + `products/enable/${productCode}/`, {
                 is_active: true
             }, {
                 headers: {
@@ -119,7 +120,7 @@ const ProductDashboard = () => {
 
             if (formType === 'add') {
                 // Lógica para agregar un nuevo producto
-                const response = await axios.post(config.API_BASE_URL + 'product/', {
+                const response = await axios.post(config.API_BASE_URL + 'products/', {
                     name,
                     total_stock,
                     unit_price,
@@ -137,7 +138,7 @@ const ProductDashboard = () => {
                     throw new Error('El código del producto no está definido.');
                 }
                 // Lógica para editar un producto existente
-                const response = await axios.put(config.API_BASE_URL + `product/${id}/`, {
+                const response = await axios.put(config.API_BASE_URL + `products/${id}/`, {
                     name,
                     total_stock,
                     unit_price,
@@ -160,7 +161,7 @@ const ProductDashboard = () => {
             const statusCode = error.response?.status;
             const errorDetail = error.response?.data?.detail;
 
-            if (statusCode === 400) {
+            if (statusCode === 401) {
                 errorMessage = errorDetail || 'El producto ya existe.';
             } else if (statusCode === 422) {
                 errorMessage = errorDetail[0]?.msg || 'Error de validación en los datos ingresados.';
@@ -168,6 +169,17 @@ const ProductDashboard = () => {
 
             setError(errorMessage);
         }
+    };
+
+
+    const handleAddToCart = () => {
+        // Muestra la alerta
+        setShowAlert(true);
+
+        // Oculta la alerta después de 3 segundos
+        setTimeout(() => {
+            setShowAlert(false);
+        }, 3000);
     };
 
     const handleAddToCartClick = (product) => {
@@ -189,8 +201,9 @@ const ProductDashboard = () => {
                 return updatedItems;
             }
         });
+        handleAddToCart();
     };
-    
+
 
     const QuantityForm = ({ quantity, setQuantity }) => {
         const handleChange = (e) => {
@@ -202,7 +215,7 @@ const ProductDashboard = () => {
                 setQuantity(newQuantity); // De lo contrario, establecer la nueva cantidad
             }
         };
-    
+
         return (
             <div className="mb-4">
                 <label htmlFor="quantity" className="block mb-2 '">Cantidad:</label>
@@ -240,8 +253,8 @@ const ProductDashboard = () => {
             label: 'Subcategoría',
             type: 'select',
             options: subcategories
-            .filter(subcategory => subcategory.is_active) // Filtrar subcategorías activas
-            .map(subcategory => ({ id: subcategory.id, name: subcategory.name })),
+                .filter(subcategory => subcategory.is_active) // Filtrar subcategorías activas
+                .map(subcategory => ({ id: subcategory.id, name: subcategory.name })),
             required: true
         }
     ];
@@ -253,9 +266,50 @@ const ProductDashboard = () => {
             <main className="flex-grow p-8">
                 <div>
                     <h2 className="text-xl font-bold">Productos</h2>
-
+                    {showAlert && (
+                        <div
+                            id="alert-border-3"
+                            className="flex items-center p-4 mt-4 text-green-800 border-t-4 border-green-300 bg-green-50 dark:text-green-400 dark:bg-gray-800 dark:border-green-800"
+                            role="alert"
+                        >
+                            <svg
+                                className="flex-shrink-0 w-4 h-4"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                            </svg>
+                            <div className="ms-3 text-sm font-medium">
+                                Producto agregado al carrito con éxito.
+                            </div>
+                            <button
+                                type="button"
+                                className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"
+                                onClick={() => setShowAlert(false)}
+                                aria-label="Close"
+                            >
+                                <span className="sr-only">Cerrar</span>
+                                <svg
+                                    className="w-3 h-3"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 14 14"
+                                >
+                                    <path
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
                     <QuantityForm quantity={quantity} setQuantity={setQuantity} />
-
                     <GenericTable
                         items={products}
                         columns={columns}
