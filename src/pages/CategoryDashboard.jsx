@@ -41,7 +41,7 @@ const CategoryDashboard = () => {
 
     const handleDisableClick = async (categoryId) => {
         try {
-            await axios.patch(config.API_BASE_URL + `categories/disable/${categoryId}/`, {
+            await axios.put(config.API_BASE_URL + `categories/${categoryId}/`, {
                 is_active: false // Cambiar el estado a false
             }, {
                 headers: {
@@ -63,7 +63,7 @@ const CategoryDashboard = () => {
 
     const handleEnableClick = async (categoryId) => {
         try {
-            await axios.patch(config.API_BASE_URL + `categories/enable/${categoryId}/`, {
+            await axios.put(config.API_BASE_URL + `categories/${categoryId}/`, {
                 is_active: true
             }, {
                 headers: {

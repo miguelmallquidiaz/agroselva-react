@@ -15,7 +15,7 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(config.API_BASE_URL+'auth/token', new URLSearchParams({
+            const response = await axios.post(config.API_BASE_URL+'auth/', new URLSearchParams({
                 grant_type: 'password',
                 username: username,
                 password: password,

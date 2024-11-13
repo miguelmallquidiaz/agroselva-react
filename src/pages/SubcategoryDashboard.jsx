@@ -65,7 +65,7 @@ const SubcategoryDashboard = () => {
 
     const handleDisableClick = async (subcategoryId) => {
         try {
-            await axios.patch(config.API_BASE_URL + `subcategories/disable/${subcategoryId}/`, {
+            await axios.put(config.API_BASE_URL + `subcategories/${subcategoryId}/`, {
                 is_active: false // Cambiar el estado a false
             }, {
                 headers: {
@@ -85,7 +85,7 @@ const SubcategoryDashboard = () => {
 
     const handleEnableClick = async (subcategoryId) => {
         try {
-            await axios.patch(config.API_BASE_URL + `subcategories/enable/${subcategoryId}/`, {
+            await axios.put(config.API_BASE_URL + `subcategories/${subcategoryId}/`, {
                 is_active: true
             }, {
                 headers: {

@@ -75,7 +75,7 @@ const ProductDashboard = () => {
 
     const handleDisableClick = async (productCode) => {
         try {
-            await axios.patch(config.API_BASE_URL + `products/disable/${productCode}/`, {
+            await axios.put(config.API_BASE_URL + `products/${productCode}/`, {
                 is_active: false
             }, {
                 headers: {
@@ -95,7 +95,7 @@ const ProductDashboard = () => {
 
     const handleEnableClick = async (productCode) => {
         try {
-            await axios.patch(config.API_BASE_URL + `products/enable/${productCode}/`, {
+            await axios.put(config.API_BASE_URL + `products/${productCode}/`, {
                 is_active: true
             }, {
                 headers: {

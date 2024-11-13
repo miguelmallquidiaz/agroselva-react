@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const GenericTable = ({
     items,
@@ -12,6 +12,41 @@ const GenericTable = ({
     handleDeleteClick,
     handleChangeStatusClick,
 }) => {
+    const [sortedColumn, setSortedColumn] = useState(null);
+    const [sortDirection, setSortDirection] = useState('asc');
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Función para ordenar los elementos
+    const sortItems = (items, column) => {
+        const sortedItems = [...items];
+        const direction = sortDirection === 'asc' ? 1 : -1;
+        sortedItems.sort((a, b) => {
+            if (a[column] < b[column]) return -1 * direction;
+            if (a[column] > b[column]) return 1 * direction;
+            return 0;
+        });
+        return sortedItems;
+    };
+
+    // Función para manejar el clic en los encabezados de las columnas para ordenar
+    const handleSort = (column) => {
+        if (sortedColumn === column) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortedColumn(column);
+            setSortDirection('asc');
+        }
+    };
+
+    // Filtrar los elementos basados en la búsqueda
+    const filteredItems = items.filter(item =>
+        columns.some(column => 
+            item[column.field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    );
+
+    const sortedItems = sortedColumn ? sortItems(filteredItems, sortedColumn) : filteredItems;
+
     // Determina si se deben mostrar las acciones
     const showActions = handleEditClick || handleDisableClick || handleEnableClick || handleAddToCartClick || handleViewProductsClick || handleDeleteClick || handleChangeStatusClick;
 
@@ -22,12 +57,32 @@ const GenericTable = ({
                 <button onClick={handleAddClick} className="mb-4 p-2 bg-blue-500 text-white rounded">Agregar</button>
             )}
 
+            {/* Filtro de búsqueda */}
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Buscar..."
+                    className="p-2 rounded"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-gray-800 text-white">
                     <thead>
                         <tr>
                             {columns.map((column, index) => (
-                                <th key={index} className="py-2 px-4 border-b border-gray-600 text-center">{column.label}</th>
+                                <th
+                                    key={index}
+                                    className="py-2 px-4 border-b border-gray-600 text-center cursor-pointer"
+                                    onClick={() => handleSort(column.field)}
+                                >
+                                    {column.label}
+                                    {sortedColumn === column.field && (
+                                        <span>{sortDirection === 'asc' ? ' ↑' : ' ↓'}</span>
+                                    )}
+                                </th>
                             ))}
                             {/* Solo mostrar la columna de Acciones si hay funciones de acción definidas */}
                             {showActions && (
@@ -36,12 +91,12 @@ const GenericTable = ({
                         </tr>
                     </thead>
                     <tbody>
-                        {items.length === 0 ? (
+                        {sortedItems.length === 0 ? (
                             <tr>
                                 <td colSpan={columns.length + (showActions ? 1 : 0)} className="py-4 text-center text-gray-400">No hay datos disponibles</td>
                             </tr>
                         ) : (
-                            items.map((item, index) => (
+                            sortedItems.map((item, index) => (
                                 <tr key={index} className="hover:bg-gray-700">
                                     {columns.map((column, colIndex) => (
                                         <td key={colIndex} className="border-b border-gray-600 px-4 py-2 text-center">
@@ -52,7 +107,7 @@ const GenericTable = ({
                                     {showActions && (
                                         <td className="border-b border-gray-600 px-4 py-2 text-center">
                                             <div className="flex justify-center space-x-4">
-                                                {/* Solo mostrar el botón de editar si la función está definida */}
+                                                {/* Botones de acción */}
                                                 {handleEditClick && (
                                                     <button onClick={() => handleEditClick(item)} className="text-blue-400 hover:text-blue-600">
                                                         <svg className="w-6 h-6 inline" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -60,7 +115,6 @@ const GenericTable = ({
                                                         </svg>
                                                     </button>
                                                 )}
-
                                                 {/* Solo mostrar el botón de deshabilitar si la función está definida */}
                                                 {handleDisableClick && (
                                                     <button onClick={() => handleDisableClick(item.id)} className="text-red-400 hover:text-red-600">
