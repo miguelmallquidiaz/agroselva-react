@@ -167,7 +167,6 @@ const SubcategoryDashboard = () => {
         { label: 'Activo', field: 'is_active' }
     ];
 
-    if (loading) return <div>Cargando...</div>;
     if (fetchError) return <div>{fetchError}</div>;
 
     const fields = [

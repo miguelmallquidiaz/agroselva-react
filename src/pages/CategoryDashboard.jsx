@@ -18,7 +18,7 @@ const CategoryDashboard = () => {
     const [errorMessage, setErrorMessage] = useState('');
     // Efecto para sincronizar las categorías cuando se cargan los datos
     React.useEffect(() => {
-            setCategories(initialCategories);
+        setCategories(initialCategories);
     }, [initialCategories]);
 
     const toggleSidebar = () => {
@@ -26,7 +26,7 @@ const CategoryDashboard = () => {
     };
 
     const handleAddClick = () => {
-        setCurrentCategory({ name: '', description: ''});
+        setCurrentCategory({ name: '', description: '' });
         setFormType('add');
         setIsModalOpen(true);
         setError(''); // Limpiar error al abrir el modal
@@ -51,8 +51,8 @@ const CategoryDashboard = () => {
             });
             // Actualizar el estado local para eliminar la categoría deshabilitada
             // setCategories(categories.filter(cat => cat.id !== categoryId));
-            setCategories((prevCategories) => 
-                prevCategories.map(cat => 
+            setCategories((prevCategories) =>
+                prevCategories.map(cat =>
                     cat.id === categoryId ? { ...cat, is_active: false } : cat
                 )
             );
@@ -73,8 +73,8 @@ const CategoryDashboard = () => {
             });
             // Actualizar el estado local para eliminar la categoría deshabilitada
             // setCategories(categories.filter(cat => cat.id !== categoryId));
-            setCategories((prevCategories) => 
-                prevCategories.map(cat => 
+            setCategories((prevCategories) =>
+                prevCategories.map(cat =>
                     cat.id === categoryId ? { ...cat, is_active: true } : cat
                 )
             );
@@ -88,7 +88,7 @@ const CategoryDashboard = () => {
             setError('El nombre de la categoría es obligatorio.');
             return;
         }
-    
+
         try {
             if (formType === 'add') {
                 const response = await axios.post(config.API_BASE_URL + 'categories/', categoryData, {
@@ -105,7 +105,7 @@ const CategoryDashboard = () => {
                         name: categoryData.name,
                         is_active: currentCategory.is_active, // Preservar el estado activo, o puedes cambiarlo según tu lógica
                     };
-    
+
                     // Llamar al endpoint PUT para actualizar la categoría
                     await axios.put(config.API_BASE_URL + `categories/${currentCategory.id}/`, updatedData, {
                         headers: {
@@ -113,7 +113,7 @@ const CategoryDashboard = () => {
                             'Content-Type': 'application/json',
                         },
                     });
-    
+
                     // Actualiza el estado local
                     const updatedCategories = categories.map(cat =>
                         cat.id === currentCategory.id ? { ...cat, ...updatedData } : cat
@@ -124,31 +124,30 @@ const CategoryDashboard = () => {
                     throw new Error('ID de categoría no válido.');
                 }
             }
-    
+
             setIsModalOpen(false);
             setError('');
         } catch (error) {
             let errorMessage = 'Ocurrió un error al guardar la categoría.';
             const statusCode = error.response?.status;
             const errorDetail = error.response?.data?.detail;
-    
+
             if (statusCode === 400) {
                 errorMessage = errorDetail || 'La categoría ya existe.';
             } else if (statusCode === 422) {
                 errorMessage = errorDetail[0]?.msg || 'Error de validación en los datos ingresados.';
             }
-    
+
             setError(errorMessage);
         }
     };
-    
+
     const columns = [
         { label: 'ID', field: 'id' },
         { label: 'Nombre', field: 'name' },
-        { label: 'Activo', field: 'is_active' }
+        { label: 'Estado', field: 'is_active' }
     ];
 
-    if (loading) return <div>Cargando...</div>;
     if (fetchError) return <div>{fetchError}</div>; // Mensaje de error al cargar categorías
 
     const fields = [
@@ -156,34 +155,39 @@ const CategoryDashboard = () => {
     ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-100 relative">
-            <Header toggleSidebar={toggleSidebar} />
-            <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar} />
-            <main className="flex-grow p-8">
-                <div>
-                    <h2 className="text-xl font-bold p-2">Categorías</h2>
-                    <GenericTable
-                        items={categories}
-                        columns={columns}
-                        handleAddClick={handleAddClick}
-                        handleEditClick={handleEditClick}
-                        handleDisableClick={handleDisableClick}
-                        handleEnableClick={handleEnableClick}
-                    />
-                </div>
-            </main>
-            {isModalOpen && (
-                <div className="modal">
-                    <GenericForm
-                        onSave={handleSave}
-                        fields={fields}
-                        initialData={currentCategory}
-                        onClose={() => setIsModalOpen(false)}
-                        errorMessage={error} // Pasar mensaje de error a GenericForm
-                        setErrorMessage={setErrorMessage}
-                    />
-                </div>
-            )}
+        <div className="flex min-h-screen">
+            {/* Sidebar al lado izquierdo */}
+            <aside className="flex-shrink-0">
+                <Header />
+            </aside>
+            {/* Contenido principal */}
+            <div className="flex-grow bg-gray-100">
+                <main className="p-8">
+                    <div>
+                        <h2 className="text-xl font-bold p-2">Categorías</h2>
+                        <GenericTable
+                            items={categories}
+                            columns={columns}
+                            handleAddClick={handleAddClick}
+                            handleEditClick={handleEditClick}
+                            handleDisableClick={handleDisableClick}
+                            handleEnableClick={handleEnableClick}
+                        />
+                    </div>
+                </main>
+                {isModalOpen && (
+                    <div className="modal">
+                        <GenericForm
+                            onSave={handleSave}
+                            fields={fields}
+                            initialData={currentCategory}
+                            onClose={() => setIsModalOpen(false)}
+                            errorMessage={error} // Pasar mensaje de error a GenericForm
+                            setErrorMessage={setErrorMessage}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

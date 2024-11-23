@@ -9,7 +9,7 @@ const Dashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [reservations, setReservations] = useState([]);
     const [pendingCount, setPendingCount] = useState(0);
-    const [completedCount, setCompletedCount] = useState(0); // Para contar las reservas completadas
+    const [completedCount, setCompletedCount] = useState(0);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -18,7 +18,7 @@ const Dashboard = () => {
             try {
                 const response = await axios.get(config.API_BASE_URL + 'reservations/', {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
                         'Content-Type': 'application/json',
                     },
                 });
@@ -40,7 +40,6 @@ const Dashboard = () => {
         fetchReservations();
     }, []);
 
-
     const columns = [
         { label: 'ID', field: 'id' },
         { label: 'Estado', field: 'reservation_status' },
@@ -49,32 +48,38 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-100 relative">
-            <Header toggleSidebar={toggleSidebar} />
-            <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar} />
-            <main className="flex-grow p-8">
-                <div>
-                    <h2 className="text-xl font-bold p-2">Panel Principal</h2>
-                    <div className="grid gap-4 mb-6 lg:grid-cols-3">
-                        {/* Tarjeta para mostrar las reservas pendientes */}
-                        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-                            <h3 className="text-lg font-semibold mb-2">Pendiente por Recoger</h3>
-                            <p className="text-3xl font-bold text-indigo-600">{pendingCount}</p>
-                        </div>
+        <div className="flex min-h-screen">
+            {/* Sidebar al lado izquierdo */}
+            <aside className="flex-shrink-0">
+                <Header />
+            </aside>
 
-                        {/* Tarjeta para mostrar las reservas completadas */}
-                        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-                            <h3 className="text-lg font-semibold mb-2">Recojos Completadas</h3>
-                            <p className="text-3xl font-bold text-green-600">{completedCount}</p>
+            {/* Contenido principal */}
+            <div className="flex-grow bg-gray-100">
+                <main className="p-8">
+                    <div>
+                        <h2 className="text-xl font-bold p-2">Panel Principal</h2>
+                        <div className="grid gap-4 mb-6 lg:grid-cols-3">
+                            {/* Tarjeta para mostrar las reservas pendientes */}
+                            <div className="bg-white shadow-lg rounded-lg p-6 text-center">
+                                <h3 className="text-lg font-semibold mb-2">Pendiente por Recoger</h3>
+                                <p className="text-3xl font-bold text-indigo-600">{pendingCount}</p>
+                            </div>
+
+                            {/* Tarjeta para mostrar las reservas completadas */}
+                            <div className="bg-white shadow-lg rounded-lg p-6 text-center">
+                                <h3 className="text-lg font-semibold mb-2">Recojos Completadas</h3>
+                                <p className="text-3xl font-bold text-green-600">{completedCount}</p>
+                            </div>
+                        </div>
+                        {/* Tabla de reservas */}
+                        <div className="mt-4">
+                            <h3 className="text-lg font-semibold mb-2">Listado de Reservas</h3>
+                            <GenericTable items={reservations} columns={columns} />
                         </div>
                     </div>
-                    {/* Tabla de reservas */}
-                    <div className="mt-4">
-                        <h3 className="text-lg font-semibold mb-2">Listado de Reservas</h3>
-                        <GenericTable items={reservations} columns={columns} />
-                    </div>
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 };

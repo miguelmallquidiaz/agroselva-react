@@ -7,6 +7,7 @@ import GenericTable from '../components/GenericTable';
 import UseFetchData from '../hooks/UseFetchData';
 import GenericForm from '../components/GenericForm';
 import config from '../utils/config';
+import { jwtDecode } from "jwt-decode";
 
 const ProductDashboard = () => {
     const { data: initialProducts, loading, error: fetchError } = UseFetchData('products');
@@ -23,6 +24,7 @@ const ProductDashboard = () => {
     const [error, setError] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [showAlert, setShowAlert] = useState(false);
+    const [role, setRole] = useState(null);
 
     useEffect(() => {
         if (initialProducts) {
@@ -30,6 +32,19 @@ const ProductDashboard = () => {
             setProducts(initialProducts);
         }
     }, [initialProducts]);
+
+    useEffect(() => {
+        // Obtener el token desde localStorage
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                setRole(decodedToken.role); // Obtener el 'role' del token
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+    }, []);
 
     // Obtener subcategorías
     useEffect(() => {
@@ -55,7 +70,7 @@ const ProductDashboard = () => {
     };
 
     const handleAddClick = () => {
-        setCurrentProduct({ name: '', total_stock: 0, unit_price: 0, is_active: true, subcategory_id: subcategories[0]?.subcategory_id || '' });
+        setCurrentProduct({ name: '', total_stock: 0, is_active: true, subcategory_id: subcategories[0]?.subcategory_id || '' });
         setFormType('add');
         setIsModalOpen(true);
         setError('');
@@ -204,50 +219,19 @@ const ProductDashboard = () => {
         handleAddToCart();
     };
 
-
-    const QuantityForm = ({ quantity, setQuantity }) => {
-        const handleChange = (e) => {
-            const newQuantity = Number(e.target.value);
-            // Validar que la cantidad sea al menos 1
-            if (newQuantity < 1 || isNaN(newQuantity)) {
-                setQuantity(1); // Establecer la cantidad a 1 si es menor a 1 o NaN
-            } else {
-                setQuantity(newQuantity); // De lo contrario, establecer la nueva cantidad
-            }
-        };
-
-        return (
-            <div className="mb-4">
-                <label htmlFor="quantity" className="block mb-2 '">Cantidad:</label>
-                <input
-                    type="number"
-                    id="quantity"
-                    min="1" // Asegurarse de que el campo no permita valores menores a 1
-                    value={quantity}
-                    onChange={handleChange} // Usar la nueva función handleChange
-                    className="w-1/4 p-2 border border-gray-300 rounded"
-                />
-            </div>
-        );
-    };
-
-
     const columns = [
         { label: 'Código', field: 'id' },
         { label: 'Nombre', field: 'name' },
         { label: 'Stock Total', field: 'total_stock' },
-        { label: 'Precio Unitario', field: 'unit_price' },
         { label: 'Subcategoría', field: 'subcategory_id' },
-        { label: 'Activo', field: 'is_active' }
+        { label: 'Activo', field: 'is_active' },
     ];
 
-    if (loading) return <div>Cargando...</div>;
     if (fetchError) return <div>{fetchError}</div>;
 
     const fields = [
         { name: 'name', label: 'Nombre del producto', type: 'text', required: true },
         { name: 'total_stock', label: 'Stock Total', type: 'number', required: true },
-        { name: 'unit_price', label: 'Precio Unitario', type: 'number', required: true },
         {
             name: 'subcategory_id',
             label: 'Subcategoría',
@@ -260,81 +244,85 @@ const ProductDashboard = () => {
     ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-100 relative">
-            <Header toggleSidebar={toggleSidebar} />
-            <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar} />
-            <main className="flex-grow p-8">
-                <div>
-                    <h2 className="text-xl font-bold">Productos</h2>
-                    {showAlert && (
-                        <div
-                            id="alert-border-3"
-                            className="flex items-center p-4 mt-4 text-green-800 border-t-4 border-green-300 bg-green-50 dark:text-green-400 dark:bg-gray-800 dark:border-green-800"
-                            role="alert"
-                        >
-                            <svg
-                                className="flex-shrink-0 w-4 h-4"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
+        <div className="flex min-h-screen">
+            {/* Sidebar al lado izquierdo */}
+            <aside className="flex-shrink-0">
+                <Header />
+            </aside>
+            {/* Contenido principal */}
+            <div className="flex-grow bg-gray-100">
+                <main className="p-8">
+                    <div>
+                        <h2 className="text-xl font-bold">Productos</h2>
+                        {showAlert && (
+                            <div
+                                id="alert-border-3"
+                                className="flex items-center p-4 mt-4 text-green-800 border-t-4 border-green-300 bg-green-50 dark:text-green-400 dark:bg-gray-800 dark:border-green-800"
+                                role="alert"
                             >
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                            </svg>
-                            <div className="ms-3 text-sm font-medium">
-                                Producto agregado al carrito con éxito.
-                            </div>
-                            <button
-                                type="button"
-                                className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"
-                                onClick={() => setShowAlert(false)}
-                                aria-label="Close"
-                            >
-                                <span className="sr-only">Cerrar</span>
                                 <svg
-                                    className="w-3 h-3"
+                                    className="flex-shrink-0 w-4 h-4"
                                     aria-hidden="true"
                                     xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 14 14"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
                                 >
-                                    <path
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                    />
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                                 </svg>
-                            </button>
-                        </div>
-                    )}
-                    <QuantityForm quantity={quantity} setQuantity={setQuantity} />
-                    <GenericTable
-                        items={products}
-                        columns={columns}
-                        handleAddClick={handleAddClick}
-                        handleEditClick={handleEditClick}
-                        handleDisableClick={handleDisableClick}
-                        handleEnableClick={handleEnableClick}
-                        handleAddToCartClick={handleAddToCartClick}
-                    />
-                    <Link to="/reservation">
-                        <button className="bg-blue-500 text-white p-2 rounded mt-4">Ir a Reservas</button>
-                    </Link>
-                </div>
-            </main>
-            {isModalOpen && (
-                <div className="modal">
-                    <GenericForm
-                        onSave={handleSave}
-                        fields={fields}
-                        initialData={currentProduct}
-                        onClose={() => setIsModalOpen(false)}
-                        errorMessage={error}
-                    />
-                </div>
-            )}
+                                <div className="ms-3 text-sm font-medium">
+                                    Producto agregado al carrito con éxito.
+                                </div>
+                                <button
+                                    type="button"
+                                    className="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"
+                                    onClick={() => setShowAlert(false)}
+                                    aria-label="Close"
+                                >
+                                    <span className="sr-only">Cerrar</span>
+                                    <svg
+                                        className="w-3 h-3"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                    >
+                                        <path
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                        />
+                                    </svg>
+                                </button>
+                            </div>
+                        )}
+                        <GenericTable
+                            items={products}
+                            columns={columns}
+                            handleAddClick={role === 'almacen' ? handleAddClick : null}
+                            handleEditClick={role === 'almacen' ? handleEditClick : null}
+                            handleDisableClick={role === 'almacen' ? handleDisableClick : null}
+                            handleEnableClick={role === 'almacen' ? handleEnableClick : null}
+                            handleAddToCartClick={handleAddToCartClick}
+                        />
+                        <Link to="/reservation">
+                            <button className="bg-blue-500 text-white p-2 rounded mt-4">Registrar pedido</button>
+                        </Link>
+                    </div>
+                </main>
+                {isModalOpen && (
+                    <div className="modal">
+                        <GenericForm
+                            onSave={handleSave}
+                            fields={fields}
+                            initialData={currentProduct}
+                            onClose={() => setIsModalOpen(false)}
+                            errorMessage={error}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

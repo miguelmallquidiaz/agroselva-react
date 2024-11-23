@@ -1,53 +1,50 @@
-import React, { useState } from 'react';
-import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import config from '../utils/config';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import config from "../utils/config";
+import fondo from "../assets/fondo-agroselva.png";
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("")
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-
+        setErrorMessage("");
         try {
-            const response = await axios.post(config.API_BASE_URL+'auth/', new URLSearchParams({
-                grant_type: 'password',
-                username: username,
-                password: password,
-            }), {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            });
-
-            localStorage.setItem('access_token', response.data.access_token);
-
-            Swal.fire({
-                title: 'Inicio de sesión exitoso',
-                text: 'Bienvenido!',
-                icon: 'success',
-                confirmButtonText: 'Ir al Dashboard',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    navigate('/dashboard');
+            const response = await axios.post(
+                config.API_BASE_URL + "auth/",
+                new URLSearchParams({
+                    grant_type: "password",
+                    username: username,
+                    password: password,
+                }),
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
                 }
-            });
+            );
 
+            // const { token } = response.data;
+
+            // if (token) {
+            //     localStorage.setItem('access_token', token);  // Guardamos el token
+            //     // Redirigimos al dashboard o a la página deseada
+            //     navigate('/dashboard');
+            // }
+            
+            localStorage.setItem("access_token", response.data.access_token);
+            navigate("/dashboard");
         } catch (error) {
             if (error.response && error.response.status === 401) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'No autorizado. Verifica tu correo y contraseña.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar',
-                });
+                setErrorMessage("Verificar tu correo o contraseña.");
             } else {
-                console.error('Login failed:', error);
+                console.error("Login failed:", error);
             }
         } finally {
             setIsLoading(false);
@@ -55,45 +52,54 @@ const Login = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-200 px-6">
-            <div className="p-6 max-w-sm w-full bg-white shadow-md rounded-md">
-                <div className="flex items-center space-x-2 justify-center">
-                    <h1 className="text-xl font-bold">Agro Selva</h1>
+        <div className="flex justify-center items-center h-screen bg-gray-100">
+            <div className="flex bg-white shadow-lg rounded-lg overflow-hidden max-w-4xl">
+                <div className="hidden md:flex md:w-1/2">
+                    <img
+                        src={fondo}
+                        alt="Agro Selva"
+                        className="object-cover w-full h-full"
+                    />
                 </div>
-
-                <form className="mt-4" onSubmit={handleSubmit}>
-                    <label className="block">
-                        <span className="text-gray-700 text-sm">Correo</span>
-                        <input
-                            type="text"
-                            className="form-input mt-1 block w-full rounded-md border border-gray-300 focus:border-indigo-600 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                    </label>
-
-                    <label className="block mt-3">
-                        <span className="text-gray-700 text-sm">Contraseña</span>
-                        <input
-                            type="password"
-                            className="form-input mt-1 block w-full rounded-md border border-gray-300 focus:border-indigo-600 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </label>
-
-                    <div className="mt-6">
-                        <button 
-                            className="py-2 px-4 text-center bg-black rounded-md w-full text-white text-sm hover:bg-green-600"
+                <div className="w-full md:w-1/2 p-8">
+                    <h2 className="text-2xl font-bold text-teal-700 mb-4">
+                        Agro Selva Jaén
+                    </h2>
+                    <form onSubmit={handleSubmit}>
+                        <label className="block mb-4">
+                            <span className="text-gray-700">Correo</span>
+                            <input
+                                type="text"
+                                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-teal-200"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label className="block mb-4">
+                            <span className="text-gray-700">Contraseña</span>
+                            <input
+                                type="password"
+                                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-teal-200"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </label>
+                        {errorMessage && (
+                            <div className="mb-4 p-4 text-red-700 bg-red-100 border border-red-400 rounded">
+                                {errorMessage}
+                            </div>
+                        )}
+                        <button
                             type="submit"
+                            className="w-full bg-teal-700 text-white py-2 px-4 rounded-md hover:bg-teal-800 transition-colors"
                             disabled={isLoading}
                         >
-                            {isLoading ? 'iniciando sesión...' : 'Iniciar sesión'}
+                            {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
                         </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     );

@@ -97,14 +97,9 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
         }
     };
 
-    // Calcular el total general del carrito
-    const getTotalPrice = () => {
-        return cartItems.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
-    };
-
     return (
         <>
-            <div className="p-4">
+            <div className="p-2">
                 {showAlert && (
                     <div
                         id="alert-border-3"
@@ -150,39 +145,34 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
                 )}
             </div>
 
-            <div className="p-4">
+            <div>
                 {cartItems.length === 0 ? (
                     <p>El carrito está vacío.</p>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full bg-gray-800 text-white">
+                        <table className="min-w-full bg-white text-gray-800 rounded-lg">
                             <thead>
-                                <tr>
-                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Producto</th>
-                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Precio Unitario</th>
-                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Cantidad</th>
-                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Total</th>
-                                    <th className="px-4 py-2 border-b border-gray-600 text-left">Acciones</th>
+                                <tr className='bg-white rounded-lg'>
+                                    <th className="py-3 px-4 border-b text-center rounded-lg cursor-pointer hover:bg-gray-200">Nombre del Producto</th>
+                                    <th className="py-3 px-4 border-b text-center rounded-lg cursor-pointer hover:bg-gray-200">Cantidad</th>
+                                    <th className='py-3 px-4 border-b'>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {cartItems.map(item => {
-                                    const totalPrice = item.unit_price * item.quantity; // Calcular total por producto
                                     return (
-                                        <tr key={item.id} className="hover:bg-gray-700">
-                                            <td className="border-b border-gray-600 px-4 py-2">{item.name}</td>
-                                            <td className="border-b border-gray-600 px-4 py-2">S/.{item.unit_price.toFixed(2)}</td>
-                                            <td className="border-b border-gray-600 px-4 py-2">
+                                        <tr key={item.id}>
+                                            <td className="py-4 text-center text-gray-500">{item.name}</td>
+                                            <td className="py-4 text-center text-gray-500">
                                                 <input
                                                     type="number"
                                                     value={item.quantity}
                                                     min="1"
                                                     onChange={(e) => handleChangeQuantity(item.id, Number(e.target.value))}
-                                                    className="border border-gray-600 bg-gray-700 text-white rounded w-full"
+                                                    className="py-2 text-center text-gray-500"
                                                 />
                                             </td>
-                                            <td className="border-b border-gray-600 px-4 py-2">S/.{totalPrice.toFixed(2)}</td>
-                                            <td className="border-b border-gray-600 px-4 py-2">
+                                            <td className="py-4 text-center text-gray-500">
                                                 <button onClick={() => handleRemove(item.id)} className="bg-red-500 text-white p-2 rounded">Eliminar</button>
                                             </td>
                                         </tr>
@@ -190,10 +180,8 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
                                 })}
                             </tbody>
                         </table>
-                        <div className="mt-4 text-lg font-bold">
-                            Total General: S/.{getTotalPrice().toFixed(2)} {/* Mostrar total general */}
-                        </div>
-                        <button onClick={() => setShowForm(true)} className="mt-4 bg-green-500 text-white p-2 rounded">Realizar Compra</button>
+                        
+                        <button onClick={() => setShowForm(true)} className="mt-4 bg-green-500 text-white p-2 rounded">Registrar Pedido</button>
                     </div>
                 )}
                 {/* Mostrar el formulario solo si showForm es true */}

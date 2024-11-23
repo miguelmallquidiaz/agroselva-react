@@ -16,7 +16,6 @@ const GenericTable = ({
     const [sortDirection, setSortDirection] = useState('asc');
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Función para ordenar los elementos
     const sortItems = (items, column) => {
         const sortedItems = [...items];
         const direction = sortDirection === 'asc' ? 1 : -1;
@@ -28,7 +27,6 @@ const GenericTable = ({
         return sortedItems;
     };
 
-    // Función para manejar el clic en los encabezados de las columnas para ordenar
     const handleSort = (column) => {
         if (sortedColumn === column) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -38,44 +36,45 @@ const GenericTable = ({
         }
     };
 
-    // Filtrar los elementos basados en la búsqueda
     const filteredItems = items.filter(item =>
-        columns.some(column => 
+        columns.some(column =>
             item[column.field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
 
     const sortedItems = sortedColumn ? sortItems(filteredItems, sortedColumn) : filteredItems;
 
-    // Determina si se deben mostrar las acciones
     const showActions = handleEditClick || handleDisableClick || handleEnableClick || handleAddToCartClick || handleViewProductsClick || handleDeleteClick || handleChangeStatusClick;
 
     return (
         <>
-            {/* Solo mostrar el botón de agregar si la función está definida */}
             {handleAddClick && (
-                <button onClick={handleAddClick} className="mb-4 p-2 bg-blue-500 text-white rounded">Agregar</button>
+                <button
+                    onClick={handleAddClick}
+                    className="mb-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                    Agregar
+                </button>
             )}
 
-            {/* Filtro de búsqueda */}
             <div className="mb-4">
                 <input
                     type="text"
                     placeholder="Buscar..."
-                    className="p-2 rounded"
+                    className="p-2 rounded border border-gray-300 w-min"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-gray-800 text-white">
+            <div className="overflow-x-auto shadow-lg rounded-lg">
+                <table className="min-w-full bg-white text-gray-800 rounded-lg">
                     <thead>
-                        <tr>
+                        <tr className="bg-white rounded-lg">
                             {columns.map((column, index) => (
                                 <th
                                     key={index}
-                                    className="py-2 px-4 border-b border-gray-600 text-center cursor-pointer"
+                                    className="py-3 px-4 border-b text-center rounded-lg cursor-pointer hover:bg-gray-200"
                                     onClick={() => handleSort(column.field)}
                                 >
                                     {column.label}
@@ -84,28 +83,39 @@ const GenericTable = ({
                                     )}
                                 </th>
                             ))}
-                            {/* Solo mostrar la columna de Acciones si hay funciones de acción definidas */}
                             {showActions && (
-                                <th className="py-2 px-4 border-b border-gray-600 text-center">Acciones</th>
+                                <th className="py-3 px-4 border-b text-center bg-white">Acciones</th>
                             )}
                         </tr>
                     </thead>
                     <tbody>
                         {sortedItems.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length + (showActions ? 1 : 0)} className="py-4 text-center text-gray-400">No hay datos disponibles</td>
+                                <td
+                                    colSpan={columns.length + (showActions ? 1 : 0)}
+                                    className="py-4 text-center text-gray-500"
+                                >
+                                    No hay datos disponibles
+                                </td>
                             </tr>
                         ) : (
                             sortedItems.map((item, index) => (
-                                <tr key={index} className="hover:bg-gray-700">
+                                <tr
+                                    key={index}
+                                    className="hover:bg-gray-50 rounded-lg"
+                                >
                                     {columns.map((column, colIndex) => (
-                                        <td key={colIndex} className="border-b border-gray-600 px-4 py-2 text-center">
-                                            {column.field === 'is_active' ? (item[column.field] ? 'Activo' : 'Inactivo') : item[column.field]}
+                                        <td
+                                            key={colIndex}
+                                            className={`border-b px-4 py-2 text-center ${
+                                                index === sortedItems.length - 1 ? 'rounded-b-lg' : ''
+                                            }`}
+                                        >
+                                            {item[column.field]}
                                         </td>
                                     ))}
-                                    {/* Solo mostrar la celda de acciones si hay funciones definidas */}
                                     {showActions && (
-                                        <td className="border-b border-gray-600 px-4 py-2 text-center">
+                                        <td className="border-b px-4 py-2 text-center">
                                             <div className="flex justify-center space-x-4">
                                                 {/* Botones de acción */}
                                                 {handleEditClick && (

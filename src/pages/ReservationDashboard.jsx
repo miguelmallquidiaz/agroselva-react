@@ -22,15 +22,20 @@ const ReservationDashboard = () => {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-100 relative">
-            <Header toggleSidebar={toggleSidebar} />
-            <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar} />
-            <main className="flex-grow p-8">
-            <div>
-            <h2 className="text-xl font-bold p-4">Carrito de compras</h2>
-            <ShoppingCart cartItems={cartItems} setCartItems={setCartItems} />
+        <div className="flex min-h-screen">
+            {/* Sidebar al lado izquierdo */}
+            <aside className="flex-shrink-0">
+                <Header />
+            </aside>
+            {/* Contenido principal */}
+            <div className="flex-grow bg-gray-100">
+                <main className="p-8">
+                    <div>
+                        <h2 className="text-xl font-bold">Regisrar Pedido</h2>
+                        <ShoppingCart cartItems={cartItems} setCartItems={setCartItems} />
+                    </div>
+                </main>
             </div>
-            </main>
         </div>
     );
 };
