@@ -28,7 +28,7 @@ const GenericForm = ({ onSave, fields, initialData = {}, onClose, errorMessage }
             onClick={onClose}
         >
             <form
-                className="bg-gray-800 text-white p-6 rounded-lg shadow-md max-w-sm w-full relative"
+                className="bg-white text-black p-6 rounded-lg shadow-md max-w-sm w-full relative"
                 onSubmit={handleSubmit}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -38,7 +38,7 @@ const GenericForm = ({ onSave, fields, initialData = {}, onClose, errorMessage }
                 <button
                     type="button"
                     onClick={onClose}
-                    className="absolute top-2 right-2 text-gray-400 hover:text-white transition duration-200"
+                    className="absolute top-2 right-2 text-gray-500 hover:text-black transition duration-200"
                 >
                     <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -57,7 +57,7 @@ const GenericForm = ({ onSave, fields, initialData = {}, onClose, errorMessage }
                                 value={formData[field.name]}
                                 onChange={handleChange}
                                 required={field.required}
-                                className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
+                                className="w-full px-3 py-2 bg-gray-200 text-black border border-gray-600 rounded focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
                             >
                                 <option value="">Seleccione una opción</option>
                                 {field.options.map((option, index) => (
@@ -74,7 +74,7 @@ const GenericForm = ({ onSave, fields, initialData = {}, onClose, errorMessage }
                                 value={formData[field.name]}
                                 onChange={handleChange}
                                 required={field.required}
-                                className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
+                                className="w-full px-3 py-2 bg-gray-200 text-black border border-gray-600 rounded focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
                             />
                         )}
                     </div>

@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import ShoppingCart from '../components/ShoppingCart.jsx';
 import Header from '../components/Header.jsx';
-import Sidebar from '../components/Sidebar.jsx';
 
 const ReservationDashboard = () => {
     const [cartItems, setCartItems] = useState(() => {
         const storedCart = sessionStorage.getItem('cart');
         return storedCart ? JSON.parse(storedCart) : [];
     });
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
     // Cargar elementos del carrito desde sessionStorage al montar
     useEffect(() => {
         const storedCart = sessionStorage.getItem('cart');

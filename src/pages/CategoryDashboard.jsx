@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
 import GenericTable from '../components/GenericTable';
 import UseFetchData from '../hooks/UseFetchData';
 import axios from 'axios';
@@ -10,7 +9,6 @@ import config from '../utils/config';
 const CategoryDashboard = () => {
     const { data: initialCategories, loading, error: fetchError } = UseFetchData('categories');
     const [categories, setCategories] = useState(initialCategories || []); // Estado para las categorías
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentCategory, setCurrentCategory] = useState(null);
     const [formType, setFormType] = useState('add'); // 'add' or 'edit'
@@ -20,10 +18,6 @@ const CategoryDashboard = () => {
     React.useEffect(() => {
         setCategories(initialCategories);
     }, [initialCategories]);
-
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
 
     const handleAddClick = () => {
         setCurrentCategory({ name: '', description: '' });

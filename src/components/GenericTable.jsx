@@ -46,6 +46,14 @@ const GenericTable = ({
 
     const showActions = handleEditClick || handleDisableClick || handleEnableClick || handleAddToCartClick || handleViewProductsClick || handleDeleteClick || handleChangeStatusClick;
 
+    // Función para renderizar los valores booleanos como "Sí" o "No"
+    const renderValue = (value) => {
+        if (typeof value === 'boolean') {
+            return value ? 'Sí' : 'No'; // Cambiar los valores booleanos a "Sí" o "No"
+        }
+        return value;
+    };
+
     return (
         <>
             {handleAddClick && (
@@ -107,17 +115,14 @@ const GenericTable = ({
                                     {columns.map((column, colIndex) => (
                                         <td
                                             key={colIndex}
-                                            className={`border-b px-4 py-2 text-center ${
-                                                index === sortedItems.length - 1 ? 'rounded-b-lg' : ''
-                                            }`}
+                                            className={`border-b px-4 py-2 text-center ${index === sortedItems.length - 1 ? 'rounded-b-lg' : ''}`}
                                         >
-                                            {item[column.field]}
+                                            {renderValue(item[column.field])} {/* Usar la función renderValue */}
                                         </td>
                                     ))}
                                     {showActions && (
                                         <td className="border-b px-4 py-2 text-center">
                                             <div className="flex justify-center space-x-4">
-                                                {/* Botones de acción */}
                                                 {handleEditClick && (
                                                     <button onClick={() => handleEditClick(item)} className="text-blue-400 hover:text-blue-600">
                                                         <svg className="w-6 h-6 inline" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -125,7 +130,6 @@ const GenericTable = ({
                                                         </svg>
                                                     </button>
                                                 )}
-                                                {/* Solo mostrar el botón de deshabilitar si la función está definida */}
                                                 {handleDisableClick && (
                                                     <button onClick={() => handleDisableClick(item.id)} className="text-red-400 hover:text-red-600">
                                                         <svg className="w-6 h-6 inline" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
@@ -133,8 +137,6 @@ const GenericTable = ({
                                                         </svg>
                                                     </button>
                                                 )}
-
-                                                {/* Solo mostrar el botón de habilitar si la función está definida */}
                                                 {handleEnableClick && (
                                                     <button onClick={() => handleEnableClick(item.id)} className="text-green-400 hover:text-green-600">
                                                         <svg className="w-6 h-6 inline" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
@@ -142,8 +144,6 @@ const GenericTable = ({
                                                         </svg>
                                                     </button>
                                                 )}
-
-                                                {/* Solo mostrar el botón de agregar al carrito si la función está definida */}
                                                 {handleAddToCartClick && (
                                                     <button onClick={() => handleAddToCartClick(item)} className="text-green-400 hover:text-green-600">
                                                         <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -151,8 +151,6 @@ const GenericTable = ({
                                                         </svg>
                                                     </button>
                                                 )}
-
-                                                {/* Botón para ver los productos */}
                                                 {handleViewProductsClick && (
                                                     <button
                                                         onClick={() => handleViewProductsClick(item.id)}
@@ -164,21 +162,17 @@ const GenericTable = ({
                                                         </svg>
                                                     </button>
                                                 )}
-
-                                                {/* Botón de cambiar estado */}
                                                 {handleChangeStatusClick && (
                                                     <button onClick={() => handleChangeStatusClick(item.id)} className="text-green-400 hover:text-green-600">
                                                         <svg className="w-6 h-6 inline" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                            <path fillRule="evenodd" d="M12 2c-.791 0-1.55.314-2.11.874l-.893.893a.985.985 0 0 1-.696.288H7.04A2.984 2.984 0 0 0 4.055 7.04v1.262a.986.986 0 0 1-.288.696l-.893.893a2.984 2.984 0 0 0 0 4.22l.893.893a.985.985 0 0 1 .288.696v1.262a2.984 2.984 0 0 0 2.984 2.984h1.262c.261 0 .512.104.696.288l.893.893a2.984 2.984 0 0 0 4.22 0l.893-.893a.985.985 0 0 1 .696-.288h1.262a2.984 2.984 0 0 0 2.984-2.984V15.7c0-.261.104-.512.288-.696l.893-.893a2.984 2.984 0 0 0 0-4.22l-.893-.893a.985.985 0 0 1-.288-.696V7.04a2.984 2.984 0 0 0-2.984-2.984h-1.262a.985.985 0 0 1-.696-.288l-.893-.893A2.984 2.984 0 0 0 12 2Zm3.683 7.73a1 1 0 1 0-1.414-1.413l-4.253 4.253-1.277-1.277a1 1 0 0 0-1.415 1.414l1.985 1.984a1 1 0 0 0 1.414 0l4.96-4.96Z" clipRule="evenodd"/>
+                                                            <path fillRule="evenodd" d="M12 2c-.791 0-1.55.314-2.11.874l-.893.893a.985.985 0 0 1-.696.288H7.04A2.984 2.984 0 0 0 4.055 7.04v1.262a.986.986 0 0 1-.288.696l-.893.893a2.984 2.984 0 0 0 0 4.22l.893.893a.985.985 0 0 1 .288.696v1.262a2.984 2.984 0 0 0 2.984 2.984h1.262c.261 0 .512.104.696.288l.893.893a2.984 2.984 0 0 0 4.22 0l.893-.893a.985.985 0 0 1 .696-.288h1.262a2.984 2.984 0 0 0 2.984-2.984V15.7c0-.261.104-.512.288-.696l.893-.893a2.984 2.984 0 0 0 0-4.22l-.893-.893a.985.985 0 0 1-.288-.696V7.04a2.984 2.984 0 0 0-2.984-2.984h-1.262a.985.985 0 0 1-.696-.288l-.893-.893A2.984 2.984 0 0 0 12 2Zm3.683 7.73a1 1 0 1 0-1.414-1.413l-4.253 4.253-1.277-1.277a1 1 0 0 0-1.415 1.414l1.985 1.984a1 1 0 0 0 1.414 0l4.96-4.96Z" clipRule="evenodd" />
                                                         </svg>
                                                     </button>
                                                 )}
-
-                                                {/* Botón de eliminar */}
                                                 {handleDeleteClick && (
                                                     <button onClick={() => handleDeleteClick(item.id)} className="text-red-400 hover:text-red-600">
                                                         <svg className="w-6 h-6 inline" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                            <path fillRule="evenodd" d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clipRule="evenodd"/>
+                                                            <path fillRule="evenodd" d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clipRule="evenodd" />
                                                         </svg>
                                                     </button>
                                                 )}

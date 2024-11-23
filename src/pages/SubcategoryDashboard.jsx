@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
 import GenericTable from '../components/GenericTable';
 import UseFetchData from '../hooks/UseFetchData';
 import GenericForm from '../components/GenericForm';
@@ -11,12 +10,11 @@ const SubcategoryDashboard = () => {
     const { data: initialSubcategories, loading, error: fetchError } = UseFetchData('subcategories');
     const [subcategories, setSubcategories] = useState(initialSubcategories || []);
     const [categories, setCategories] = useState([]); // Lista de categorías
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentSubcategory, setCurrentSubcategory] = useState(null);
     const [formType, setFormType] = useState('add');
     const [error, setError] = useState('');
-    
+
     useEffect(() => {
         if (initialSubcategories) {
             setSubcategories(initialSubcategories);
@@ -40,10 +38,6 @@ const SubcategoryDashboard = () => {
 
         fetchCategories();
     }, []);
-
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
 
     const handleAddClick = () => {
         setCurrentSubcategory({ name: '', measures: '', is_active: true, category_id: categories[0]?.category_id || '' }); // Inicializa con la primera categoría
@@ -73,8 +67,8 @@ const SubcategoryDashboard = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            setSubcategories((prevSubcategories) => 
-                prevSubcategories.map(subcat => 
+            setSubcategories((prevSubcategories) =>
+                prevSubcategories.map(subcat =>
                     subcat.id === subcategoryId ? { ...subcat, is_active: false } : subcat
                 )
             );
@@ -93,8 +87,8 @@ const SubcategoryDashboard = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            setSubcategories((prevSubcategories) => 
-                prevSubcategories.map(subcat => 
+            setSubcategories((prevSubcategories) =>
+                prevSubcategories.map(subcat =>
                     subcat.id === subcategoryId ? { ...subcat, is_active: true } : subcat
                 )
             );
@@ -102,12 +96,12 @@ const SubcategoryDashboard = () => {
             console.error('Error enabling subcategory:', error);
         }
     };
-    
+
     const handleSave = async (subcategoryData) => {
         try {
             // Asegúrate de que el category_id se esté configurando correctamente
             const { name, measures, category_id } = subcategoryData; // Desestructuración para obtener solo los campos necesarios
-    
+
             if (formType === 'add') {
                 // Crear una nueva subcategoría
                 const response = await axios.post(config.API_BASE_URL + 'subcategories/', {
@@ -124,7 +118,7 @@ const SubcategoryDashboard = () => {
                 setSubcategories([...subcategories, response.data]);
             } else if (formType === 'edit') {
                 if (!subcategoryData.id) {
-                    throw new Error('ID de la subcategoría no está definido.'); 
+                    throw new Error('ID de la subcategoría no está definido.');
                 }
                 // Actualizar subcategoría existente
                 const response = await axios.put(config.API_BASE_URL + `subcategories/${subcategoryData.id}/`, {
@@ -142,22 +136,22 @@ const SubcategoryDashboard = () => {
                 );
                 setSubcategories(updatedSubcategories);
             }
-    
+
             setIsModalOpen(false);
         } catch (error) {
             let errorMessage = 'Ocurrió un error al guardar la categoría.';
             const statusCode = error.response?.status;
             const errorDetail = error.response?.data?.detail;
-    
+
             if (statusCode === 401) {
                 errorMessage = errorDetail || 'La categoría ya existe.';
             } else if (statusCode === 422) {
                 errorMessage = errorDetail[0]?.msg || 'Error de validación en los datos ingresados.';
             }
-    
+
             setError(errorMessage);
         }
-    };        
+    };
 
     const columns = [
         { label: 'ID', field: 'id' },
@@ -170,26 +164,29 @@ const SubcategoryDashboard = () => {
     if (fetchError) return <div>{fetchError}</div>;
 
     const fields = [
-    { name: 'name', label: 'Nombre de la subcategoría', type: 'text', required: true },
-    { name: 'measures', label: 'Medida de subcategoría', type: 'text', required: false },
-    { 
-        name: 'category_id', 
-        label: 'Categoría', 
-        type: 'select', 
-        options: categories
-            .filter(category => category.is_active) // Filtrar categorías activas
-            .map(category => ({ id: category.id, name: category.name })), 
-        required: true 
-    }
-];
+        { name: 'name', label: 'Nombre de la subcategoría', type: 'text', required: true },
+        { name: 'measures', label: 'Medida de subcategoría', type: 'text', required: false },
+        {
+            name: 'category_id',
+            label: 'Categoría',
+            type: 'select',
+            options: categories
+                .filter(category => category.is_active) // Filtrar categorías activas
+                .map(category => ({ id: category.id, name: category.name })),
+            required: true
+        }
+    ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-100 relative">
-            <Header toggleSidebar={toggleSidebar} />
-            <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={toggleSidebar} />
-            <main className="flex-grow p-8">
-                <div>
-                    <h2 className="text-xl font-bold p-2">Subcategorías</h2>
+        <div className="flex min-h-screen">
+            {/* Sidebar al lado izquierdo */}
+            <aside className="flex-shrink-0">
+                <Header />
+            </aside>
+            {/* Contenido principal */}
+            <div className="flex-grow bg-gray-100">
+                <main className="p-8">
+                    <h2 className="text-xl font-bold">Subcategorías</h2>
                     <GenericTable
                         items={subcategories}
                         columns={columns}
@@ -198,19 +195,20 @@ const SubcategoryDashboard = () => {
                         handleDisableClick={handleDisableClick}
                         handleEnableClick={handleEnableClick}
                     />
-                </div>
-            </main>
-            {isModalOpen && (
-                <div className="modal">
-                    <GenericForm
-                        onSave={handleSave}
-                        fields={fields}
-                        initialData={currentSubcategory}
-                        onClose={() => setIsModalOpen(false)}
-                        errorMessage={error}
-                    />
-                </div>
-            )}
+
+                </main>
+                {isModalOpen && (
+                    <div className="modal">
+                        <GenericForm
+                            onSave={handleSave}
+                            fields={fields}
+                            initialData={currentSubcategory}
+                            onClose={() => setIsModalOpen(false)}
+                            errorMessage={error}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

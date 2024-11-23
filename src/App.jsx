@@ -7,7 +7,6 @@ import CategoryDashboard from './pages/CategoryDashboard';
 import SubcategoryDashboard from './pages/SubcategoryDashboard';
 import ProductDashboard from './pages/ProductDashboard';
 import ReservationDashboard from './pages/ReservationDashboard';
-import ListReservation from './pages/ListReservation';
 import ReservationProducts from './pages/ReservationProducts';
 
 const App = () => {
@@ -22,8 +21,7 @@ const App = () => {
         <Route path="/subcategory" element={<PrivateRoute element={SubcategoryDashboard} />} />
         <Route path="/product" element={<PrivateRoute element={ProductDashboard} cartItems={cartItems} setCartItems={setCartItems} />} />
         <Route path="/reservation" element={<PrivateRoute element={ReservationDashboard} cartItems={cartItems} setCartItems={setCartItems} />} />
-        <Route path="/listreservation" element={<PrivateRoute element={ListReservation} />} />
-        <Route path="/reservations/:reservationId/products" element={<ReservationProducts />} />
+        <Route path="/ItemsProduct/:id" element={<ReservationProducts />} />
         </Routes>
     </Router>
   );
