@@ -4,21 +4,32 @@ import GenericTable from '../components/GenericTable';
 import axios from 'axios';
 import config from '../utils/config';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const Dashboard = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [orders, setOrders] = useState([]);
     const [pendingCount, setPendingCount] = useState(0);
     const [completedCount, setCompletedCount] = useState(0);
     const [alertMessage, setAlertMessage] = useState(null);
     const navigate = useNavigate();
+    const [role, setRole] = useState(null);
 
     const handleViewProductsClick = (id) => {
-        console.log("ID recibido:", id);
         navigate(`/ItemsProduct/${id}`);
     };
 
-
+    useEffect(() => {
+        // Obtener el token desde localStorage
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                setRole(decodedToken.role); // Obtener el 'role' del token
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+    }, []);
 
     const fetchReservations = async () => {
         try {
@@ -78,6 +89,7 @@ const Dashboard = () => {
         { label: 'ID de Pedido', field: 'id' },
         { label: 'Estado', field: 'order_status' },
         { label: 'Fecha de Entrega', field: 'delivery_date' },
+        { label: 'Nombre del empleado', field: 'full_name' },
     ];
 
     return (
@@ -94,20 +106,20 @@ const Dashboard = () => {
                         <h2 className="text-xl font-bold p-2">Panel Principal</h2>
                         <div className="grid gap-4 mb-6 lg:grid-cols-3">
                             {alertMessage && (
-                                <div className="fixed top-2 left-3/4 transform -translate-x-1/2 p-4 mb-4 bg-green-500 text-white rounded shadow-lg">
+                                <div className="fixed top-2 left-3/4 transform -translate-x-1/2 p-4 mb-4 bg-teal-600 text-white rounded shadow-lg">
                                     {alertMessage}
                                 </div>
                             )}
                             {/* Tarjeta para mostrar las reservas pendientes */}
                             <div className="bg-white shadow-lg rounded-lg p-6 text-center">
                                 <h3 className="text-lg font-semibold mb-2">Pendiente por Recoger</h3>
-                                <p className="text-3xl font-bold text-indigo-600">{pendingCount}</p>
+                                <p className="text-3xl font-bold text-red-500">{pendingCount}</p>
                             </div>
 
                             {/* Tarjeta para mostrar las reservas completadas */}
                             <div className="bg-white shadow-lg rounded-lg p-6 text-center">
                                 <h3 className="text-lg font-semibold mb-2">Recojos Completadas</h3>
-                                <p className="text-3xl font-bold text-green-600">{completedCount}</p>
+                                <p className="text-3xl font-bold text-teal-600">{completedCount}</p>
                             </div>
                         </div>
                         {/* Tabla de reservas */}
@@ -117,7 +129,7 @@ const Dashboard = () => {
                                 items={orders}
                                 columns={columns}
                                 handleViewProductsClick={handleViewProductsClick}
-                                handleChangeStatusClick={handleChangeStatusClick} />
+                                handleChangeStatusClick={role === 'almacen' ? handleChangeStatusClick : null} />
                         </div>
                     </div>
                 </main>

@@ -30,14 +30,6 @@ const Login = () => {
                 }
             );
 
-            // const { token } = response.data;
-
-            // if (token) {
-            //     localStorage.setItem('access_token', token);  // Guardamos el token
-            //     // Redirigimos al dashboard o a la página deseada
-            //     navigate('/dashboard');
-            // }
-            
             localStorage.setItem("access_token", response.data.access_token);
             navigate("/dashboard");
         } catch (error) {

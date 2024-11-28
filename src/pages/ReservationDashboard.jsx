@@ -26,7 +26,7 @@ const ReservationDashboard = () => {
             <div className="flex-grow bg-gray-100">
                 <main className="p-8">
                     <div>
-                        <h2 className="text-xl font-bold">Regisrar Pedido</h2>
+                        <h2 className="text-xl font-bold">Registrar Pedido</h2>
                         <ShoppingCart cartItems={cartItems} setCartItems={setCartItems} />
                     </div>
                 </main>

@@ -86,7 +86,7 @@ const Header = () => {
     return (
         <aside className="flex flex-col bg-white text-black w-60 min-h-screen py-6">
             <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold">AgroSelva</h1>
+                <h1 className="text-2xl font-bold text-teal-700">AgroSelva</h1>
             </div>
             <nav className="flex-grow">
                 <ul className="space-y-4">

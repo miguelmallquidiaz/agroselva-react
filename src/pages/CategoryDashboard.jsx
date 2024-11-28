@@ -158,7 +158,7 @@ const CategoryDashboard = () => {
             <div className="flex-grow bg-gray-100">
                 <main className="p-8">
                     <div>
-                        <h2 className="text-xl font-bold p-2">Categorías</h2>
+                        <h2 className="text-xl font-bold">Categorías</h2>
                         <GenericTable
                             items={categories}
                             columns={columns}

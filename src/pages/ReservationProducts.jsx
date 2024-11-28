@@ -16,12 +16,12 @@ const ReservationProducts = () => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${config.API_BASE_URL}orders/${id}/details`, {
+                const response = await axios.get(`${config.API_BASE_URL}orders/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
                 });
-                setProducts(response.data); // Guardar los datos de los productos
+                setProducts(response.data);
             } catch (error) {
                 setError('No se pudo cargar los productos de la reserva.');
                 console.error('Error fetching products:', error);
@@ -54,7 +54,7 @@ const ReservationProducts = () => {
             <div className="flex-grow bg-gray-100">
                 <main className="p-8">
                 <h2 className="text-xl font-bold mb-4">Detalle del Pedido</h2>
-            <button onClick={handleBack} className="mb-4 bg-blue-500 text-white p-2 rounded">
+            <button onClick={handleBack} className="mb-4 bg-teal-700 text-white p-2 rounded">
                 Regresar a Listar pedidos
             </button>
             {loading && <div>Cargando...</div>}

@@ -133,7 +133,7 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
                 {/* Mensaje de éxito */}
                 {successMessage && (
                     <div
-                        className="p-4 mb-4 text-green-800 border-t-4 border-green-300 bg-green-50"
+                        className="p-4 mb-4 text-teal-700 border-t-4 border-teal-700 bg-green-50"
                         role="alert"
                     >
                         <div className="text-sm font-medium">{successMessage}</div>
@@ -175,7 +175,7 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
                             </tbody>
                         </table>
                         
-                        <button onClick={handleCheckout} className="mt-4 bg-green-500 text-white p-2 rounded">Registrar Pedido</button>
+                        <button onClick={handleCheckout} className="mt-4 bg-teal-700 text-white p-2 rounded">Registrar Pedido</button>
                     </div>
                 )}
             </div>

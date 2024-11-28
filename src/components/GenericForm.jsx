@@ -57,7 +57,7 @@ const GenericForm = ({ onSave, fields, initialData = {}, onClose, errorMessage }
                                 value={formData[field.name]}
                                 onChange={handleChange}
                                 required={field.required}
-                                className="w-full px-3 py-2 bg-gray-200 text-black border border-gray-600 rounded focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
+                                className="w-full px-3 py-2 bg-white text-black border border-gray-400 rounded focus:outline-none focus:ring focus:ring-gray-200 transition duration-200"
                             >
                                 <option value="">Seleccione una opción</option>
                                 {field.options.map((option, index) => (
@@ -74,7 +74,7 @@ const GenericForm = ({ onSave, fields, initialData = {}, onClose, errorMessage }
                                 value={formData[field.name]}
                                 onChange={handleChange}
                                 required={field.required}
-                                className="w-full px-3 py-2 bg-gray-200 text-black border border-gray-600 rounded focus:outline-none focus:ring focus:ring-blue-500 transition duration-200"
+                                className="w-full px-3 py-2 bg-white text-black border border-gray-400 rounded focus:outline-none focus:ring focus:ring-gray-200 transition duration-200"
                             />
                         )}
                     </div>
@@ -82,7 +82,7 @@ const GenericForm = ({ onSave, fields, initialData = {}, onClose, errorMessage }
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"
+                    className="w-full bg-teal-700 text-white py-2 rounded hover:bg-teal-600 transition duration-200"
                 >
                     Guardar
                 </button>
