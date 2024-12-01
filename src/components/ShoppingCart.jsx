@@ -56,7 +56,7 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
             });
 
             console.log("Pedido creado:", response.data);
-            setSuccessMessage("Compra realizada con éxito!"); // Mostrar mensaje de éxito
+            setSuccessMessage("Pedido realizado con éxito!"); // Mostrar mensaje de éxito
 
             setCartItems([]); // Limpiar el carrito
             sessionStorage.removeItem('cart');
@@ -66,12 +66,12 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
             }, 3000);
 
         } catch (error) {
-            console.error("Error al realizar la compra:", error);
+            console.error("Error al realizar el pedido:", error);
 
             if (error.response && error.response.status === 422) {
                 setErrorMessage("Hubo un problema con los datos del pedido.");
             } else {
-                setErrorMessage("Hubo un problema al realizar la compra. Por favor, intenta de nuevo.");
+                setErrorMessage("Hubo un problema al realizar el pedido. Por favor, intenta de nuevo.");
             }
 
             // Mostrar alerta de error
@@ -102,7 +102,7 @@ const ShoppingCart = ({ cartItems = [], setCartItems }) => {
                             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                         </svg>
                         <div className="ms-3 text-sm font-medium">
-                            Hubo un error al realizar la compra. Por favor, revisa los datos ingresados.
+                            Hubo un error al realizar el pedido. Por favor, revisa los datos ingresados.
                         </div>
                         <button
                             type="button"
